@@ -1,0 +1,37 @@
+{
+  "manifest_version": 3,
+
+  "name": "Quick Replies",
+
+  "version": "1.0",
+
+  "icons": {
+    "16": "assets-2/logo-icon-16.png",
+    "48": "assets-2/logo-icon-48.png",
+    "128": "assets-2/logo-icon-128.png"
+  },
+
+  "action": {
+    "default_icon": {
+      "16": "assets-2/logo-icon-16.png",
+      "48": "assets-2/logo-icon-48.png",
+      "128": "assets-2/logo-icon-128.png"
+    }
+  },
+
+  "content_scripts": [
+    {
+      "matches": [
+        "https://fiberpro.ucontactcloud.com/views/agent.html/*"
+      ],
+
+      "js": [
+        "content.js"
+      ],
+
+      "css": [
+        "styles.css"
+      ]
+    }
+  ]
+}
