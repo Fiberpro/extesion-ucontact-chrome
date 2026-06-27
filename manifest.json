@@ -22,7 +22,8 @@
   "content_scripts": [
     {
       "matches": [
-        "https://fiberpro.ucontactcloud.com/views/agent.html/*"
+        "https://fiberpro.ucontactcloud.com/views/agent.html/*",
+        "https://fiberpro.ucontactcloud.com/views/portal.html/*"
       ],
 
       "js": [
