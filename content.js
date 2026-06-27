@@ -117,8 +117,8 @@ if (!document.getElementById("quick-button")) {
     }
 
     const rect = emoji.getBoundingClientRect();
-    const buttonSize = button.offsetWidth || 44;
-    const gap = 10;
+    const buttonSize = button.offsetWidth || 28;
+    const gap = 4;
     const left = Math.max(8, rect.left - buttonSize - gap);
     const top = Math.max(8, rect.top + (rect.height / 2) - (buttonSize / 2));
     const panelWidth = 320;
