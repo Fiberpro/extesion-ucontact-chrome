@@ -118,9 +118,39 @@ if (!document.getElementById("quick-button")) {
 
     const rect = emoji.getBoundingClientRect();
     const buttonSize = button.offsetWidth || 28;
-    const gap = 8;
-    const left = Math.max(8, rect.left + (rect.width / 2) - (buttonSize / 2));
-    const top = Math.max(8, rect.bottom + gap);
+
+    const inputChat = 
+      document.querySelector('.chat-message-input') || 
+      document.querySelector('[contenteditable="true"]') || 
+      document.querySelector('textarea[placeholder*="mensaje"]') || 
+      document.querySelector('input[placeholder*="mensaje"]') || 
+      document.getElementById('txtMessage') ||
+      document.querySelector('.write-message');
+
+    if (inputChat) {
+      if (inputChat !== ultimoInputChat) {
+        ultimoInputChat = inputChat;
+        alturaInicialInput = inputChat.offsetHeight > 0 ? inputChat.offsetHeight : 0;
+      } else if (alturaInicialInput === 0 && inputChat.offsetHeight > 0) {
+        alturaInicialInput = inputChat.offsetHeight;
+      }
+    } else {
+      ultimoInputChat = null;
+      alturaInicialInput = 0;
+    }
+
+    const isMultiLine = inputChat && alturaInicialInput > 0 && inputChat.offsetHeight > (alturaInicialInput + 10);
+
+    let left, top;
+    if (isMultiLine) {
+      const gap = 8;
+      left = Math.max(8, rect.left + (rect.width / 2) - (buttonSize / 2));
+      top = Math.max(8, rect.bottom + gap);
+    } else {
+      const gap = 4;
+      left = Math.max(8, rect.left - buttonSize - gap);
+      top = Math.max(8, rect.top + (rect.height / 2) - (buttonSize / 2));
+    }
     const panelWidth = 320;
     const panelRect = panel.getBoundingClientRect();
     const panelHeight = Math.min(
@@ -190,6 +220,8 @@ if (!document.getElementById("quick-button")) {
   let plantillaModalActual = null;
   let plantillasActuales = [];
   let areaUsuarioActual = null;
+  let ultimoInputChat = null;
+  let alturaInicialInput = 0;
 
   // =========================
   // LÓGICA DE INYECCIÓN EN CHAT
