@@ -118,9 +118,9 @@ if (!document.getElementById("quick-button")) {
 
     const rect = emoji.getBoundingClientRect();
     const buttonSize = button.offsetWidth || 28;
-    const gap = 4;
-    const left = Math.max(8, rect.left - buttonSize - gap);
-    const top = Math.max(8, rect.top + (rect.height / 2) - (buttonSize / 2));
+    const gap = 8;
+    const left = Math.max(8, rect.left + (rect.width / 2) - (buttonSize / 2));
+    const top = Math.max(8, rect.bottom + gap);
     const panelWidth = 320;
     const panelRect = panel.getBoundingClientRect();
     const panelHeight = Math.min(
@@ -130,7 +130,7 @@ if (!document.getElementById("quick-button")) {
     );
     const panelLeft = Math.min(Math.max(8, left - panelWidth + buttonSize), window.innerWidth - panelWidth - 8);
     const panelTop = Math.min(
-      Math.max(8, top - panelHeight - 12),
+      Math.max(8, rect.top - panelHeight - 8),
       window.innerHeight - panelHeight - 8
     );
 
