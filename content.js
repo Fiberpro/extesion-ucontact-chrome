@@ -79,9 +79,92 @@ if (!document.getElementById("quick-button")) {
     button.setAttribute("aria-expanded", String(panelAbierto));
   }
 
-  button.addEventListener("click", () => {
+  function cerrarPanel() {
+    panel.classList.remove("show");
+    actualizarEstadoBoton();
+  }
+
+  function obtenerIconoEmojiVisible() {
+    return [...document.querySelectorAll(".emoji-picker-icon.emoji-picker.fa.fa-smile-o, .emoji-picker-icon")]
+      .filter(elemento => !button.contains(elemento) && !panel.contains(elemento))
+      .filter(elemento => {
+        const rect = elemento.getBoundingClientRect();
+        const estilos = window.getComputedStyle(elemento);
+
+        return rect.width > 0 &&
+          rect.height > 0 &&
+          estilos.display !== "none" &&
+          estilos.visibility !== "hidden";
+      })
+      .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top)[0] || null;
+  }
+
+  function posicionarBoton() {
+    const emoji = obtenerIconoEmojiVisible();
+
+    if (!emoji) {
+      cerrarPanel();
+      button.classList.remove("is-ready");
+      button.style.setProperty("left", "auto", "important");
+      button.style.setProperty("top", "auto", "important");
+      button.style.setProperty("right", "28px", "important");
+      button.style.setProperty("bottom", "96px", "important");
+      panel.style.setProperty("right", "28px", "important");
+      panel.style.setProperty("bottom", "168px", "important");
+      panel.style.removeProperty("top");
+      panel.style.removeProperty("left");
+      return;
+    }
+
+    const rect = emoji.getBoundingClientRect();
+    const buttonSize = button.offsetWidth || 44;
+    const gap = 10;
+    const left = Math.max(8, rect.left - buttonSize - gap);
+    const top = Math.max(8, rect.top + (rect.height / 2) - (buttonSize / 2));
+    const panelWidth = 320;
+    const panelRect = panel.getBoundingClientRect();
+    const panelHeight = Math.min(
+      panel.classList.contains("show") && panelRect.height > 0 ? panelRect.height : 360,
+      500,
+      window.innerHeight - 16
+    );
+    const panelLeft = Math.min(Math.max(8, left - panelWidth + buttonSize), window.innerWidth - panelWidth - 8);
+    const panelTop = Math.min(
+      Math.max(8, top - panelHeight - 12),
+      window.innerHeight - panelHeight - 8
+    );
+
+    button.style.setProperty("left", `${left}px`, "important");
+    button.style.setProperty("top", `${top}px`, "important");
+    button.style.setProperty("right", "auto", "important");
+    button.style.setProperty("bottom", "auto", "important");
+    button.classList.add("is-ready");
+
+    panel.style.setProperty("left", `${panelLeft}px`, "important");
+    panel.style.setProperty("top", `${panelTop}px`, "important");
+    panel.style.setProperty("right", "auto", "important");
+    panel.style.setProperty("bottom", "auto", "important");
+  }
+
+  button.addEventListener("click", event => {
+    event.stopPropagation();
     panel.classList.toggle("show");
     actualizarEstadoBoton();
+    requestAnimationFrame(posicionarBoton);
+  });
+  panel.addEventListener("click", event => {
+    event.stopPropagation();
+  });
+  document.addEventListener("click", event => {
+    if (!panel.classList.contains("show")) {
+      return;
+    }
+
+    if (button.contains(event.target) || panel.contains(event.target)) {
+      return;
+    }
+
+    cerrarPanel();
   });
   actualizarEstadoBoton();
 
@@ -89,6 +172,10 @@ if (!document.getElementById("quick-button")) {
   extensionRoot.appendChild(button);
   extensionRoot.appendChild(panel);
   extensionRoot.appendChild(modal);
+  posicionarBoton();
+  window.addEventListener("resize", posicionarBoton);
+  window.addEventListener("scroll", posicionarBoton, true);
+  setInterval(posicionarBoton, 1200);
 
   const container = panel.querySelector("#templates-container");
   const areaInfo = panel.querySelector("#template-area-info");
@@ -269,8 +356,7 @@ if (!document.getElementById("quick-button")) {
   function abrirModalVariables(plantilla, variables) {
     plantillaModalActual = plantilla;
     variableModalTitle.innerText = plantilla.titulo;
-    panel.classList.remove("show");
-    actualizarEstadoBoton();
+    cerrarPanel();
     variableFields.innerHTML = "";
 
     variables.forEach((variable, index) => {
@@ -609,6 +695,7 @@ if (!document.getElementById("quick-button")) {
         ? "No se encontraron plantillas con ese título."
         : `No hay plantillas para ${areaUsuario.codigo} - ${areaUsuario.nombre}.`;
       container.appendChild(empty);
+      requestAnimationFrame(posicionarBoton);
       return;
     }
 
@@ -641,6 +728,8 @@ if (!document.getElementById("quick-button")) {
 
       container.appendChild(div);
     });
+
+    requestAnimationFrame(posicionarBoton);
   }
 
   function renderizarEstadoPlantillas(mensaje, tipo = "") {
@@ -650,6 +739,7 @@ if (!document.getElementById("quick-button")) {
     estado.className = `templates-empty ${tipo}`.trim();
     estado.innerText = mensaje;
     container.appendChild(estado);
+    requestAnimationFrame(posicionarBoton);
   }
 
   function renderizarVistaActual() {
