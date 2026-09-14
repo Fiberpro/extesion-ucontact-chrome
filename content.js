@@ -5,7 +5,7 @@ if (!document.getElementById("quick-button")) {
   // CONFIGURACIÓN
   // =========================
   const SHEET_URL = "https://script.google.com/macros/s/AKfycbwuUyiFdA7FcfmFtR96Nt56fL7Q08aot23K8mqifAE1XiOdR85V88zPSxDRG4QZdCVw/exec";
-  
+
 
   // =========================
   // BOTÓN FLOTANTE
@@ -62,7 +62,8 @@ if (!document.getElementById("quick-button")) {
         <div id="variable-fields"></div>
       </div>
       <div class="variable-modal-actions">
-        <button id="variable-modal-cancel" class="btn btn-secondary" type="button">Cerrar</button>
+        <button id="variable-modal-cancel" class="btn btn-secondary" type="button">Cancelar</button>
+        <button id="variable-modal-insert" class="btn btn-secondary" type="button">Solo insertar</button>
         <button id="variable-modal-send" class="btn btn-primary" type="button">Enviar mensaje</button>
       </div>
     </div>
@@ -84,25 +85,81 @@ if (!document.getElementById("quick-button")) {
     actualizarEstadoBoton();
   }
 
-  function obtenerIconoEmojiVisible() {
-    return [...document.querySelectorAll(".emoji-picker-icon.emoji-picker.fa.fa-smile-o, .emoji-picker-icon")]
-      .filter(elemento => !button.contains(elemento) && !panel.contains(elemento))
-      .filter(elemento => {
-        const rect = elemento.getBoundingClientRect();
-        const estilos = window.getComputedStyle(elemento);
+  function elementoVisible(elemento) {
+    if (!elemento) return false;
+    const rect = elemento.getBoundingClientRect();
+    const estilos = window.getComputedStyle(elemento);
 
-        return rect.width > 0 &&
-          rect.height > 0 &&
-          estilos.display !== "none" &&
-          estilos.visibility !== "hidden";
-      })
+    return rect.width > 0 &&
+      rect.height > 0 &&
+      estilos.visibility !== "hidden" &&
+      estilos.display !== "none";
+  }
+
+  function obtenerInputChat() {
+    const selectores = [
+      '.chat-message-input',
+      '[contenteditable="true"]',
+      'textarea[placeholder*="mensaje" i]',
+      'input[placeholder*="mensaje" i]',
+      '#txtMessage',
+      '.write-message'
+    ];
+
+    const elementos = [...document.querySelectorAll(selectores.join(', '))]
+      .filter(elemento => !panel.contains(elemento) && !modal.contains(elemento))
+      .filter(elemento => !elemento.closest('.modal, .modal-dialog, .modal-content, [role="dialog"]'))
+      .filter(elementoVisible);
+
+    return elementos[0] || null;
+  }
+
+  function obtenerIconoEmojiVisible() {
+    // 1. Buscar dentro de contenedores de chat activos (excluyendo modales y barras de navegación)
+    const contenedoresChat = [...document.querySelectorAll('.chat-message-input, .chat-footer, .chat-box, .write-message, .message-input, .chat-container, .chat')]
+      .filter(elemento => !elemento.closest('#sidebar, .sidebar, .nav, .menu, nav, header, .topbar, #left-panel, .modal, .modal-dialog, [role="dialog"]'))
+      .filter(elementoVisible);
+
+    for (const contenedor of contenedoresChat) {
+      const iconoChat = [...contenedor.querySelectorAll('.emoji-picker-icon, .fa-smile-o, .fa-comment, .fa-comments')]
+        .filter(elemento => !button.contains(elemento) && !panel.contains(elemento))
+        .filter(elementoVisible)[0];
+
+      if (iconoChat) {
+        return { elemento: iconoChat, esIcono: true };
+      }
+    }
+
+    // 2. Búsqueda global del icono de emojis oficial de uContact en el chat activo
+    const iconoGlobal = [...document.querySelectorAll(".emoji-picker-icon.emoji-picker.fa.fa-smile-o, .emoji-picker-icon")]
+      .filter(elemento => !button.contains(elemento) && !panel.contains(elemento))
+      .filter(elemento => !elemento.closest('#sidebar, .sidebar, .nav, .menu, nav, header, .topbar, #left-panel, .modal, .modal-dialog, [role="dialog"]'))
+      .filter(elementoVisible)
       .sort((a, b) => b.getBoundingClientRect().top - a.getBoundingClientRect().top)[0] || null;
+
+    if (iconoGlobal) {
+      return { elemento: iconoGlobal, esIcono: true };
+    }
+
+    // 3. Fallback: caja de texto activa del chat principal
+    const inputChat = obtenerInputChat();
+    if (inputChat) {
+      return { elemento: inputChat, esIcono: false };
+    }
+
+    return null;
   }
 
   function posicionarBoton() {
-    const emoji = obtenerIconoEmojiVisible();
+    const inputChat = obtenerInputChat();
 
-    if (!emoji) {
+    if (inputChat && inputChat.tagName === "TEXTAREA") {
+      inputChat.style.setProperty("padding-right", "44px", "important");
+    }
+
+    const anchorInfo = obtenerIconoEmojiVisible();
+
+    if (!anchorInfo) {
       cerrarPanel();
       button.classList.remove("is-ready");
       button.style.setProperty("left", "auto", "important");
@@ -116,41 +173,20 @@ if (!document.getElementById("quick-button")) {
       return;
     }
 
-    const rect = emoji.getBoundingClientRect();
-    const buttonSize = button.offsetWidth || 28;
-
-    const inputChat = 
-      document.querySelector('.chat-message-input') || 
-      document.querySelector('[contenteditable="true"]') || 
-      document.querySelector('textarea[placeholder*="mensaje"]') || 
-      document.querySelector('input[placeholder*="mensaje"]') || 
-      document.getElementById('txtMessage') ||
-      document.querySelector('.write-message');
-
-    if (inputChat) {
-      if (inputChat !== ultimoInputChat) {
-        ultimoInputChat = inputChat;
-        alturaInicialInput = inputChat.offsetHeight > 0 ? inputChat.offsetHeight : 0;
-      } else if (alturaInicialInput === 0 && inputChat.offsetHeight > 0) {
-        alturaInicialInput = inputChat.offsetHeight;
-      }
-    } else {
-      ultimoInputChat = null;
-      alturaInicialInput = 0;
-    }
-
-    const isMultiLine = inputChat && alturaInicialInput > 0 && inputChat.offsetHeight > (alturaInicialInput + 10);
+    const anchor = anchorInfo.elemento;
+    const rect = anchor.getBoundingClientRect();
+    const buttonSize = button.offsetWidth || 34;
+    const gap = 8;
 
     let left, top;
-    if (isMultiLine) {
-      const gap = 8;
-      left = Math.max(8, rect.left + (rect.width / 2) - (buttonSize / 2));
-      top = Math.max(8, rect.bottom + gap);
-    } else {
-      const gap = 4;
+    if (anchorInfo.esIcono) {
       left = Math.max(8, rect.left - buttonSize - gap);
       top = Math.max(8, rect.top + (rect.height / 2) - (buttonSize / 2));
+    } else {
+      left = Math.max(8, rect.right - buttonSize - 8);
+      top = Math.max(8, rect.bottom - buttonSize - 8);
     }
+
     const panelWidth = 320;
     const panelRect = panel.getBoundingClientRect();
     const panelHeight = Math.min(
@@ -158,11 +194,14 @@ if (!document.getElementById("quick-button")) {
       500,
       window.innerHeight - 16
     );
-    const panelLeft = Math.min(Math.max(8, left - panelWidth + buttonSize), window.innerWidth - panelWidth - 8);
-    const panelTop = Math.min(
-      Math.max(8, rect.top - panelHeight - 8),
-      window.innerHeight - panelHeight - 8
-    );
+
+    let panelLeft = left - panelWidth - 10;
+    if (panelLeft < 8) {
+      panelLeft = Math.min(window.innerWidth - panelWidth - 8, left + buttonSize + 10);
+    }
+
+    let panelTop = top - (panelHeight / 2) + (buttonSize / 2);
+    panelTop = Math.min(Math.max(8, panelTop), window.innerHeight - panelHeight - 8);
 
     button.style.setProperty("left", `${left}px`, "important");
     button.style.setProperty("top", `${top}px`, "important");
@@ -176,11 +215,27 @@ if (!document.getElementById("quick-button")) {
     panel.style.setProperty("bottom", "auto", "important");
   }
 
+  // Prevenir que modales externos secuestren el foco en el panel y modal de variables
+  ["focusin", "focus", "mousedown", "pointerdown", "touchstart"].forEach(tipoEvento => {
+    panel.addEventListener(tipoEvento, event => {
+      event.stopPropagation();
+    }, true);
+
+    modal.addEventListener(tipoEvento, event => {
+      event.stopPropagation();
+    }, true);
+  });
+
   button.addEventListener("click", event => {
     event.stopPropagation();
     panel.classList.toggle("show");
     actualizarEstadoBoton();
-    requestAnimationFrame(posicionarBoton);
+    requestAnimationFrame(() => {
+      posicionarBoton();
+      if (panel.classList.contains("show") && searchInput) {
+        setTimeout(() => searchInput.focus(), 60);
+      }
+    });
   });
   panel.addEventListener("click", event => {
     event.stopPropagation();
@@ -210,39 +265,80 @@ if (!document.getElementById("quick-button")) {
   const container = panel.querySelector("#templates-container");
   const areaInfo = panel.querySelector("#template-area-info");
   const searchInput = panel.querySelector("#template-search-input");
+
+  if (searchInput) {
+    ["mousedown", "pointerdown", "click", "focus"].forEach(tipoEvento => {
+      searchInput.addEventListener(tipoEvento, event => {
+        event.stopPropagation();
+      }, true);
+    });
+
+    searchInput.addEventListener("click", () => {
+      searchInput.focus();
+    });
+  }
   const reloadTemplatesButton = panel.querySelector("#reload-templates");
   const variablePreview = modal.querySelector("#variable-preview");
   const variableFields = modal.querySelector("#variable-fields");
   const variableModalClose = modal.querySelector("#variable-modal-close");
   const variableModalCancel = modal.querySelector("#variable-modal-cancel");
+  const variableModalInsert = modal.querySelector("#variable-modal-insert");
   const variableModalSend = modal.querySelector("#variable-modal-send");
   const variableModalTitle = modal.querySelector(".variable-modal-title");
   let plantillaModalActual = null;
   let plantillasActuales = [];
   let areaUsuarioActual = null;
-  let ultimoInputChat = null;
-  let alturaInicialInput = 0;
 
   // =========================
-  // LÓGICA DE INYECCIÓN EN CHAT
+  // LÓGICA DE INYECCIÓN EN CHAT PRINCIPAL
   // =========================
   function insertarEnChat(texto) {
-    const inputChat = 
-      document.querySelector('.chat-message-input') || 
-      document.querySelector('[contenteditable="true"]') || 
-      document.querySelector('textarea[placeholder*="mensaje"]') || 
-      document.querySelector('input[placeholder*="mensaje"]') || 
-      document.getElementById('txtMessage') ||
-      document.querySelector('.write-message');
+    const inputChat = obtenerInputChat();
 
     if (inputChat) {
+      inputChat.focus();
+
       if (inputChat.tagName !== 'INPUT' && inputChat.tagName !== 'TEXTAREA') {
-        inputChat.innerText = texto;
+        if (document.queryCommandSupported && document.queryCommandSupported('insertText')) {
+          document.execCommand('selectAll', false, null);
+          document.execCommand('insertText', false, texto);
+        } else {
+          inputChat.innerText = texto;
+        }
       } else {
         inputChat.value = texto;
       }
 
-      // Disparar eventos para que el sistema detecte los cambios de texto
+      // Sincronizar con el modelo de datos de uContact (AngularJS / jQuery)
+      try {
+        if (window.jQuery || window.$) {
+          const $elem = (window.jQuery || window.$)(inputChat);
+          $elem.val(texto).trigger('input').trigger('change');
+        }
+
+        if (window.angular) {
+          const ngElem = window.angular.element(inputChat);
+          const scope = ngElem.scope();
+          if (scope) {
+            const ngModel = inputChat.getAttribute('ng-model');
+            if (ngModel) {
+              const keys = ngModel.split('.');
+              let target = scope;
+              for (let i = 0; i < keys.length - 1; i++) {
+                if (target[keys[i]]) target = target[keys[i]];
+              }
+              target[keys[keys.length - 1]] = texto;
+            }
+            if (!scope.$$phase && !scope.$root.$$phase) {
+              scope.$apply();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("[Quick Replies] Error al sincronizar estado de uContact:", err);
+      }
+
+      // Disparar eventos nativos del navegador
       inputChat.dispatchEvent(new Event('input', { bubbles: true }));
       inputChat.dispatchEvent(new Event('change', { bubbles: true }));
       inputChat.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true }));
@@ -255,37 +351,28 @@ if (!document.getElementById("quick-button")) {
     }
   }
 
-  function elementoVisible(elemento) {
-    const rect = elemento.getBoundingClientRect();
-    const estilos = window.getComputedStyle(elemento);
-
-    return rect.width > 0 &&
-      rect.height > 0 &&
-      estilos.visibility !== "hidden" &&
-      estilos.display !== "none";
-  }
-
   function enviarMensajeChat(inputChat) {
     const selectoresEnviar = [
       ".send-message",
       ".btn-send",
       ".chat-send",
       "[data-action='send']",
-      "[title*='Enviar']",
-      "[aria-label*='Enviar']",
+      "[title*='Enviar' i]",
+      "[aria-label*='Enviar' i]",
       "button[class*='send']",
       "i[class*='send']",
       "i.fa-send",
       "i.fa-paper-plane"
     ].join(", ");
 
-    const botonEnviar = [...document.querySelectorAll(selectoresEnviar)]
+    let botonEnviar = [...document.querySelectorAll(selectoresEnviar)]
       .filter(elemento => !panel.contains(elemento) && !modal.contains(elemento))
+      .filter(elemento => !elemento.closest('.modal, .modal-dialog, [role="dialog"]'))
       .filter(elementoVisible)
       .find(Boolean);
 
     if (botonEnviar) {
-      const clickable = botonEnviar.closest("button, a, div") || botonEnviar;
+      const clickable = botonEnviar.closest("button, a, div, input") || botonEnviar;
       clickable.click();
       return true;
     }
@@ -321,7 +408,7 @@ if (!document.getElementById("quick-button")) {
       if (!enviado) {
         console.warn("[Quick Replies] No se pudo encontrar el control de envío del chat.");
       }
-    }, 80);
+    }, 200);
   }
 
   // =========================
@@ -338,7 +425,19 @@ if (!document.getElementById("quick-button")) {
   function reemplazarVariables(texto, valores) {
     return String(texto || "").replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (match, variable) => {
       const clave = variable.trim();
-      return valores[clave] ?? "";
+      const valorIngresado = valores[clave] ?? "";
+
+      if (!valorIngresado) {
+        return "";
+      }
+
+      const tieneAsteriscos = /^\*.*\*$/.test(clave);
+
+      if (tieneAsteriscos && !/^\*.*\*$/.test(valorIngresado)) {
+        return `*${valorIngresado}*`;
+      }
+
+      return valorIngresado;
     });
   }
 
@@ -368,6 +467,7 @@ if (!document.getElementById("quick-button")) {
     });
 
     variableModalSend.disabled = !camposCompletos;
+    variableModalInsert.disabled = !camposCompletos;
     return camposCompletos;
   }
 
@@ -383,31 +483,120 @@ if (!document.getElementById("quick-button")) {
     variableFields.innerHTML = "";
     variablePreview.value = "";
     variableModalSend.disabled = false;
+    variableModalInsert.disabled = false;
+  }
+
+  function limpiarNombreLabel(nombre) {
+    const limpio = String(nombre || "").replace(/^\*+|\*+$/g, "").trim();
+    return /^\d+$/.test(limpio) ? `Variable ${limpio}` : limpio;
+  }
+
+  function parsearDetalleVariable(variableRaw) {
+    const raw = String(variableRaw || "").trim();
+
+    if (raw.includes("|")) {
+      let nombre = raw;
+      let opcionesTexto = "";
+
+      if (raw.includes(":")) {
+        const partes = raw.split(":");
+        nombre = partes[0].trim();
+        opcionesTexto = partes.slice(1).join(":");
+      } else {
+        const partes = raw.split("|");
+        nombre = partes[0].trim();
+        opcionesTexto = partes.slice(1).join("|");
+      }
+
+      const opciones = opcionesTexto
+        .split("|")
+        .map(opt => opt.trim())
+        .filter(Boolean)
+        .map(opt => {
+          let texto = opt;
+          let valor = opt;
+
+          if (opt.includes("=>")) {
+            const partes = opt.split("=>");
+            texto = partes[0].trim();
+            valor = partes.slice(1).join("=>").trim();
+          } else if (opt.includes("=")) {
+            const partes = opt.split("=");
+            texto = partes[0].trim();
+            valor = partes.slice(1).join("=").trim();
+          }
+
+          return { texto, valor };
+        });
+
+      if (opciones.length > 0) {
+        return {
+          raw,
+          nombre,
+          opciones
+        };
+      }
+    }
+
+    return {
+      raw,
+      nombre: raw,
+      opciones: []
+    };
   }
 
   function abrirModalVariables(plantilla, variables) {
     plantillaModalActual = plantilla;
-    variableModalTitle.innerText = plantilla.titulo;
+    const esHSM = String(plantilla.descripcion || "").toLowerCase().trim().startsWith("hsm;");
+    variableModalTitle.innerText = esHSM ? `⚡ [HSM Botones] ${plantilla.titulo}` : plantilla.titulo;
     cerrarPanel();
     variableFields.innerHTML = "";
 
-    variables.forEach((variable, index) => {
+    variables.forEach((variableRaw, index) => {
+      const detalle = parsearDetalleVariable(variableRaw);
       const wrapper = document.createElement("div");
       wrapper.className = "variable-group";
 
+      const labelNombre = limpiarNombreLabel(detalle.nombre);
       const label = document.createElement("label");
       label.className = "variable-label";
-      label.innerText = /^\d+$/.test(variable) ? `Variable ${variable}` : variable;
+      label.innerText = labelNombre;
       label.htmlFor = `variable-input-${index}`;
 
-      const input = document.createElement("input");
-      input.id = `variable-input-${index}`;
-      input.className = "variable-input";
-      input.dataset.variable = variable;
-      input.type = "text";
-      input.placeholder = `Valor para {{${variable}}}`;
-      input.required = true;
-      input.addEventListener("input", actualizarFormularioVariables);
+      let input;
+
+      if (detalle.opciones.length > 0) {
+        input = document.createElement("select");
+        input.id = `variable-input-${index}`;
+        input.className = "variable-input variable-select";
+        input.dataset.variable = variableRaw;
+        input.required = true;
+
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.innerText = `Seleccione ${labelNombre}...`;
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        input.appendChild(defaultOption);
+
+        detalle.opciones.forEach(opcion => {
+          const opt = document.createElement("option");
+          opt.value = opcion.valor;
+          opt.innerText = opcion.texto;
+          input.appendChild(opt);
+        });
+
+        input.addEventListener("change", actualizarFormularioVariables);
+      } else {
+        input = document.createElement("input");
+        input.id = `variable-input-${index}`;
+        input.className = "variable-input";
+        input.dataset.variable = variableRaw;
+        input.type = "text";
+        input.placeholder = `Valor para {{${labelNombre}}}`;
+        input.required = true;
+        input.addEventListener("input", actualizarFormularioVariables);
+      }
 
       wrapper.appendChild(label);
       wrapper.appendChild(input);
@@ -450,6 +639,19 @@ if (!document.getElementById("quick-button")) {
       cerrarModalVariables();
     }
   });
+  variableModalInsert.addEventListener("click", () => {
+    if (!plantillaModalActual) {
+      return;
+    }
+
+    if (!validarVariablesModal()) {
+      return;
+    }
+
+    insertarEnChat(variablePreview.value);
+    cerrarModalVariables();
+  });
+
   variableModalSend.addEventListener("click", () => {
     if (!plantillaModalActual) {
       return;
@@ -651,9 +853,15 @@ if (!document.getElementById("quick-button")) {
 
     const badge = document.createElement("div");
     badge.className = areaUsuario.codigo ? "area-badge" : "area-badge warning";
-    badge.innerText = areaUsuario.codigo
-      ? `Área detectada: ${areaUsuario.codigo} - ${areaUsuario.nombre}`
-      : "Área no detectada: mostrando solo plantillas generales";
+    const esOcOCa = areaUsuario.codigo === "OC" || areaUsuario.codigo === "CA";
+
+    if (areaUsuario.codigo) {
+      badge.innerText = esOcOCa
+        ? "Área detectada: OC - Otras Consultas"
+        : `Área detectada: ${areaUsuario.codigo} - ${areaUsuario.nombre}`;
+    } else {
+      badge.innerText = "Área no detectada: mostrando solo plantillas generales";
+    }
 
     areaInfo.appendChild(badge);
   }
@@ -675,9 +883,13 @@ if (!document.getElementById("quick-button")) {
 
   function filtrarPlantillas(plantillas, areaUsuario, busqueda) {
     const textoBusqueda = normalizarTexto(busqueda);
-    const plantillasPorArea = areaUsuario.codigo
-      ? plantillas.filter(plantilla => plantilla.esGeneral || plantilla.areaCodigo === areaUsuario.codigo)
-      : plantillas.filter(plantilla => plantilla.esGeneral);
+    const esOcOCa = areaUsuario.codigo === "OC" || areaUsuario.codigo === "CA";
+
+    const plantillasPorArea = esOcOCa
+      ? plantillas.filter(plantilla => plantilla.esGeneral || plantilla.areaCodigo === "OC" || plantilla.areaCodigo === "CA")
+      : (areaUsuario.codigo
+        ? plantillas.filter(plantilla => plantilla.esGeneral || plantilla.areaCodigo === areaUsuario.codigo)
+        : plantillas.filter(plantilla => plantilla.esGeneral));
 
     if (!textoBusqueda) {
       return {
@@ -791,7 +1003,7 @@ if (!document.getElementById("quick-button")) {
     areaUsuarioActual = obtenerAreaUsuario();
 
     console.log("[Quick Replies] usuario detectado:", areaUsuarioActual.usuario);
-    console.log("[Quick Replies] área detectada:", areaUsuarioActual.codigo, areaUsuarioActual.nombre);
+    console.log("[Quick Replies] :", areaUsuarioActual.codigo, areaUsuarioActual.nombre);
     console.log("[Quick Replies] plantillas cargadas:", plantillasActuales.length);
 
     renderizarVistaActual();
