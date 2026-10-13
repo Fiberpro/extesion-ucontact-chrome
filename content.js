@@ -60,10 +60,49 @@ if (!document.getElementById("quick-button")) {
           <textarea id="variable-preview" readonly></textarea>
         </div>
         <div id="variable-fields"></div>
+        <div class="variable-group variable-attachment-group">
+          <label class="variable-label">Adjuntar archivos (opcional)</label>
+          <div id="variable-attachment-dropzone" class="variable-attachment-card">
+            <input type="file" id="variable-file-input" multiple style="display: none;">
+            <div id="variable-file-empty" class="variable-file-empty">
+              <div class="variable-file-icon-wrap">
+                <svg viewBox="0 0 24 24" class="variable-clip-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+              </div>
+              <div class="variable-file-text-content">
+                <button type="button" id="variable-file-browse-btn" class="variable-file-browse-btn">
+                  Adjuntar archivos
+                </button>
+                <span class="variable-file-hint">o arrastra y suelta aquí (puedes seleccionar varios)</span>
+              </div>
+            </div>
+            <div id="variable-file-selected" class="variable-file-selected" style="display: none;">
+              <div id="variable-files-list" class="variable-files-list"></div>
+              <div class="variable-files-summary-bar">
+                <span id="variable-files-total-info" class="variable-files-total-info"></span>
+                <div class="variable-files-summary-actions">
+                  <button type="button" id="variable-file-add-more-btn" class="variable-file-btn-add-more" title="Agregar más archivos">
+                    + Agregar más
+                  </button>
+                  <button type="button" id="variable-file-clear-all-btn" class="variable-file-btn-clear-all" title="Quitar todos los archivos">
+                    Quitar todos
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="variable-modal-actions">
+        <button id="variable-modal-attach" class="btn btn-secondary variable-btn-attach" type="button" title="Abrir explorador de archivos para adjuntar">
+          <svg viewBox="0 0 24 24" class="variable-clip-icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+          <span id="variable-modal-attach-text">Adjuntar archivos</span>
+        </button>
+        <div class="variable-modal-actions-spacer"></div>
         <button id="variable-modal-cancel" class="btn btn-secondary" type="button">Cancelar</button>
-        <button id="variable-modal-insert" class="btn btn-secondary" type="button">Solo insertar</button>
         <button id="variable-modal-send" class="btn btn-primary" type="button">Enviar mensaje</button>
       </div>
     </div>
@@ -282,9 +321,23 @@ if (!document.getElementById("quick-button")) {
   const variableFields = modal.querySelector("#variable-fields");
   const variableModalClose = modal.querySelector("#variable-modal-close");
   const variableModalCancel = modal.querySelector("#variable-modal-cancel");
-  const variableModalInsert = modal.querySelector("#variable-modal-insert");
   const variableModalSend = modal.querySelector("#variable-modal-send");
   const variableModalTitle = modal.querySelector(".variable-modal-title");
+
+  // Elementos para adjuntar archivos
+  const variableFileInput = modal.querySelector("#variable-file-input");
+  const variableAttachmentDropzone = modal.querySelector("#variable-attachment-dropzone");
+  const variableFileEmpty = modal.querySelector("#variable-file-empty");
+  const variableFileSelected = modal.querySelector("#variable-file-selected");
+  const variableFilesList = modal.querySelector("#variable-files-list");
+  const variableFilesTotalInfo = modal.querySelector("#variable-files-total-info");
+  const variableFileBrowseBtn = modal.querySelector("#variable-file-browse-btn");
+  const variableFileAddMoreBtn = modal.querySelector("#variable-file-add-more-btn");
+  const variableFileClearAllBtn = modal.querySelector("#variable-file-clear-all-btn");
+  const variableModalAttach = modal.querySelector("#variable-modal-attach");
+  const variableModalAttachText = modal.querySelector("#variable-modal-attach-text");
+
+  let archivosAdjuntosActuales = [];
   let plantillaModalActual = null;
   let plantillasActuales = [];
   let areaUsuarioActual = null;
@@ -395,20 +448,99 @@ if (!document.getElementById("quick-button")) {
     return true;
   }
 
-  function insertarYEnviarEnChat(texto) {
+  function verificarYEnviarPendientes(inputChat) {
+    // 1. Si uContact abrió un modal o diálogo para confirmar la subida del archivo
+    const selectoresBotonSubir = [
+      ".modal.in button[class*='send']",
+      ".modal.in button[class*='upload']",
+      ".modal.in .btn-primary",
+      ".modal-dialog button[class*='send']",
+      ".modal-dialog .btn-primary",
+      "[role='dialog'] button[class*='send']",
+      "[role='dialog'] .btn-primary",
+      "button[ng-click*='upload']",
+      "button[ng-click*='sendFile']"
+    ];
+
+    const botonModal = [...document.querySelectorAll(selectoresBotonSubir.join(", "))]
+      .filter(el => !modal.contains(el) && !panel.contains(el) && elementoVisible(el))[0];
+
+    if (botonModal) {
+      console.log("[Quick Replies] Confirmando subida de archivo en modal de uContact:", botonModal);
+      botonModal.click();
+      return;
+    }
+
+    // 2. Si uContact tiene archivos en el input de carga o previsualización de adjuntos
+    const fileInputs = [...document.querySelectorAll('input[type="file"]')]
+      .filter(el => !modal.contains(el));
+    const hayArchivosEnInput = fileInputs.some(fi => fi.files && fi.files.length > 0);
+
+    const chipsArchivo = [...document.querySelectorAll('.chat-attachment, .chat-file, .attachment-preview, .file-preview, [class*="attached"]')]
+      .filter(el => !modal.contains(el) && elementoVisible(el));
+
+    if (hayArchivosEnInput || chipsArchivo.length > 0) {
+      console.log("[Quick Replies] Enviando adjuntos pendientes en uContact (segundo envío)");
+      enviarMensajeChat(inputChat);
+    }
+  }
+
+  function insertarYEnviarTodo(texto, archivos) {
+    const tieneArchivos = archivos && archivos.length > 0;
     const inputChat = insertarEnChat(texto);
 
     if (!inputChat) {
       return;
     }
 
-    setTimeout(() => {
-      const enviado = enviarMensajeChat(inputChat);
+    if (!tieneArchivos) {
+      // Si solo es texto, enviar a los 200ms
+      setTimeout(() => {
+        enviarMensajeChat(inputChat);
+      }, 200);
+      return;
+    }
 
-      if (!enviado) {
-        console.warn("[Quick Replies] No se pudo encontrar el control de envío del chat.");
-      }
-    }, 200);
+    // =========================================================================
+    // FLUJO CON ARCHIVOS:
+    // 1. Enviar el texto como mensaje principal (una sola vez).
+    // 2. Limpiar la caja para que uContact no duplique el texto con cada archivo.
+    // 3. Adjuntar los archivos y enviarlos limpios a continuación.
+    // =========================================================================
+    setTimeout(() => {
+      // 1. Enviar el texto
+      enviarMensajeChat(inputChat);
+
+      // 2. Esperar que el mensaje de texto salga y limpiar la caja
+      setTimeout(() => {
+        try {
+          inputChat.value = "";
+          if (window.jQuery || window.$) {
+            (window.jQuery || window.$)(inputChat).val("").trigger("input").trigger("change");
+          }
+          inputChat.dispatchEvent(new Event("input", { bubbles: true }));
+          inputChat.dispatchEvent(new Event("change", { bubbles: true }));
+        } catch (e) {
+          console.warn("[Quick Replies] Error al limpiar caja tras enviar texto:", e);
+        }
+
+        // 3. Adjuntar los archivos con la caja de texto ya limpia
+        adjuntarArchivosEnChat(archivos);
+
+        // 4. Enviar los archivos adjuntos
+        setTimeout(() => {
+          verificarYEnviarPendientes(inputChat);
+
+          setTimeout(() => {
+            verificarYEnviarPendientes(inputChat);
+          }, 600);
+        }, 400);
+      }, 650);
+    }, 250);
+  }
+
+  function insertarYEnviarEnChat(texto) {
+    insertarYEnviarTodo(texto, []);
   }
 
   // =========================
@@ -467,7 +599,6 @@ if (!document.getElementById("quick-button")) {
     });
 
     variableModalSend.disabled = !camposCompletos;
-    variableModalInsert.disabled = !camposCompletos;
     return camposCompletos;
   }
 
@@ -482,8 +613,8 @@ if (!document.getElementById("quick-button")) {
     modal.classList.remove("show");
     variableFields.innerHTML = "";
     variablePreview.value = "";
+    resetearArchivosModal();
     variableModalSend.disabled = false;
-    variableModalInsert.disabled = false;
   }
 
   function limpiarNombreLabel(nombre) {
@@ -550,6 +681,7 @@ if (!document.getElementById("quick-button")) {
     const esHSM = String(plantilla.descripcion || "").toLowerCase().trim().startsWith("hsm;");
     variableModalTitle.innerText = esHSM ? `⚡ [HSM Botones] ${plantilla.titulo}` : plantilla.titulo;
     cerrarPanel();
+    resetearArchivosModal();
     variableFields.innerHTML = "";
 
     variables.forEach((variableRaw, index) => {
@@ -632,24 +764,270 @@ if (!document.getElementById("quick-button")) {
     abrirModalVariables(plantilla, variables);
   }
 
+  // =========================
+  // GESTIÓN DE ARCHIVOS ADJUNTOS
+  // =========================
+  function formatearTamanoArchivo(bytes) {
+    if (!bytes || bytes === 0) return "0 B";
+    const k = 1024;
+    const dm = 1;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+  }
+
+  function obtenerIconoSegunArchivo(nombreArchivo) {
+    const ext = (nombreArchivo || "").split(".").pop().toLowerCase();
+    if (["pdf"].includes(ext)) return "📕";
+    if (["doc", "docx", "odt", "rtf", "txt"].includes(ext)) return "📄";
+    if (["xls", "xlsx", "csv"].includes(ext)) return "📊";
+    if (["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext)) return "🖼️";
+    if (["zip", "rar", "7z", "tar", "gz"].includes(ext)) return "📦";
+    return "📎";
+  }
+
+  function abrirExploradorArchivos() {
+    variableFileInput.click();
+  }
+
+  function renderizarListaArchivos() {
+    variableFilesList.innerHTML = "";
+
+    if (archivosAdjuntosActuales.length === 0) {
+      variableFileEmpty.style.display = "flex";
+      variableFileSelected.style.display = "none";
+      variableAttachmentDropzone.classList.remove("has-file");
+      variableModalAttachText.innerText = "Adjuntar archivos";
+      variableModalAttach.classList.remove("has-file");
+      return;
+    }
+
+    variableFileEmpty.style.display = "none";
+    variableFileSelected.style.display = "flex";
+    variableAttachmentDropzone.classList.add("has-file");
+
+    const totalBytes = archivosAdjuntosActuales.reduce((sum, f) => sum + (f.size || 0), 0);
+    const count = archivosAdjuntosActuales.length;
+    variableFilesTotalInfo.innerText = `${count} ${count === 1 ? "archivo" : "archivos"} (${formatearTamanoArchivo(totalBytes)})`;
+
+    variableModalAttachText.innerText = `${count} ${count === 1 ? "archivo adjunto" : "archivos adjuntos"}`;
+    variableModalAttach.classList.add("has-file");
+
+    archivosAdjuntosActuales.forEach((file, index) => {
+      const item = document.createElement("div");
+      item.className = "variable-file-item";
+
+      const left = document.createElement("div");
+      left.className = "variable-file-item-left";
+
+      const badge = document.createElement("span");
+      badge.className = "variable-file-badge";
+      badge.innerText = obtenerIconoSegunArchivo(file.name);
+
+      const names = document.createElement("div");
+      names.className = "variable-file-names";
+
+      const name = document.createElement("span");
+      name.className = "variable-file-name";
+      name.innerText = file.name;
+      name.title = file.name;
+
+      const size = document.createElement("span");
+      size.className = "variable-file-size";
+      size.innerText = formatearTamanoArchivo(file.size);
+
+      names.appendChild(name);
+      names.appendChild(size);
+      left.appendChild(badge);
+      left.appendChild(names);
+
+      const removeBtn = document.createElement("button");
+      removeBtn.type = "button";
+      removeBtn.className = "variable-file-btn-remove";
+      removeBtn.title = "Quitar este archivo";
+      removeBtn.setAttribute("aria-label", "Quitar archivo");
+      removeBtn.innerHTML = "&times;";
+      removeBtn.addEventListener("click", event => {
+        event.stopPropagation();
+        quitarArchivo(index);
+      });
+
+      item.appendChild(left);
+      item.appendChild(removeBtn);
+      variableFilesList.appendChild(item);
+    });
+  }
+
+  function agregarArchivos(nuevosArchivos) {
+    if (!nuevosArchivos || !nuevosArchivos.length) return;
+
+    const lista = Array.from(nuevosArchivos);
+    for (const archivo of lista) {
+      const yaExiste = archivosAdjuntosActuales.some(
+        a => a.name === archivo.name && a.size === archivo.size && a.lastModified === archivo.lastModified
+      );
+      if (!yaExiste) {
+        archivosAdjuntosActuales.push(archivo);
+      }
+    }
+
+    renderizarListaArchivos();
+  }
+
+  function quitarArchivo(index) {
+    if (index >= 0 && index < archivosAdjuntosActuales.length) {
+      archivosAdjuntosActuales.splice(index, 1);
+      renderizarListaArchivos();
+    }
+  }
+
+  function resetearArchivosModal() {
+    archivosAdjuntosActuales = [];
+    variableFileInput.value = "";
+    renderizarListaArchivos();
+  }
+
+  function adjuntarArchivosEnChat(archivos) {
+    if (!archivos || !archivos.length) return false;
+
+    try {
+      // 1. Buscar inputs de tipo file nativos en uContact
+      const selectoresFileInput = [
+        '.chat-footer input[type="file"]',
+        '.chat-message-input input[type="file"]',
+        '.chat-box input[type="file"]',
+        '.write-message input[type="file"]',
+        '#chat-container input[type="file"]',
+        'input[type="file"]'
+      ];
+
+      const fileInputs = [...document.querySelectorAll(selectoresFileInput.join(", "))]
+        .filter(el => !modal.contains(el));
+
+      if (fileInputs.length > 0) {
+        const fileInput = fileInputs[0];
+        const dataTransfer = new DataTransfer();
+        for (const archivo of archivos) {
+          dataTransfer.items.add(archivo);
+        }
+        fileInput.files = dataTransfer.files;
+
+        fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+        fileInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+        // Sincronizar AngularJS si aplica
+        if (window.angular) {
+          const ngElem = window.angular.element(fileInput);
+          const scope = ngElem.scope();
+          if (scope) {
+            const ngModel = fileInput.getAttribute("ng-model");
+            if (ngModel) {
+              const keys = ngModel.split(".");
+              let target = scope;
+              for (let i = 0; i < keys.length - 1; i++) {
+                if (target[keys[i]]) target = target[keys[i]];
+              }
+              target[keys[keys.length - 1]] = dataTransfer.files;
+            }
+            if (!scope.$$phase && !scope.$root.$$phase) {
+              scope.$apply();
+            }
+          }
+        }
+        console.log(`[Quick Replies] ${archivos.length} archivo(s) transferido(s) exitosamente a uContact`);
+        return true;
+      }
+
+      // 2. Si uContact maneja el adjunto mediante botón de clip nativo
+      const selectoresClip = [
+        ".emoji-picker-icon ~ .fa-paperclip",
+        ".chat-footer .fa-paperclip",
+        ".chat-box .fa-paperclip",
+        ".write-message .fa-paperclip",
+        ".fa-paperclip",
+        ".fa-clip",
+        "[title*='adjuntar' i]",
+        "[title*='attach' i]"
+      ];
+
+      const botonClip = [...document.querySelectorAll(selectoresClip.join(", "))]
+        .filter(el => !modal.contains(el) && !panel.contains(el) && elementoVisible(el))[0];
+
+      if (botonClip) {
+        console.log("[Quick Replies] Botón de adjunto uContact detectado:", botonClip);
+      }
+    } catch (err) {
+      console.warn("[Quick Replies] No se pudieron adjuntar archivos automáticamente:", err);
+    }
+
+    return false;
+  }
+
+  // Eventos de adjunto en modal
+  variableModalAttach.addEventListener("click", abrirExploradorArchivos);
+  variableFileBrowseBtn.addEventListener("click", event => {
+    event.stopPropagation();
+    abrirExploradorArchivos();
+  });
+
+  variableAttachmentDropzone.addEventListener("click", event => {
+    if (event.target.closest(".variable-file-btn-remove") || event.target.closest("#variable-file-add-more-btn") || event.target.closest("#variable-file-clear-all-btn")) {
+      return;
+    }
+    if (archivosAdjuntosActuales.length === 0) {
+      abrirExploradorArchivos();
+    }
+  });
+
+  if (variableFileAddMoreBtn) {
+    variableFileAddMoreBtn.addEventListener("click", event => {
+      event.stopPropagation();
+      abrirExploradorArchivos();
+    });
+  }
+
+  if (variableFileClearAllBtn) {
+    variableFileClearAllBtn.addEventListener("click", event => {
+      event.stopPropagation();
+      resetearArchivosModal();
+    });
+  }
+
+  variableFileInput.addEventListener("change", () => {
+    if (variableFileInput.files && variableFileInput.files.length > 0) {
+      agregarArchivos(variableFileInput.files);
+      variableFileInput.value = "";
+    }
+  });
+
+  // Drag and Drop
+  variableAttachmentDropzone.addEventListener("dragover", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    variableAttachmentDropzone.classList.add("is-dragover");
+  });
+
+  variableAttachmentDropzone.addEventListener("dragleave", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    variableAttachmentDropzone.classList.remove("is-dragover");
+  });
+
+  variableAttachmentDropzone.addEventListener("drop", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    variableAttachmentDropzone.classList.remove("is-dragover");
+    if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      agregarArchivos(event.dataTransfer.files);
+    }
+  });
+
   variableModalClose.addEventListener("click", cerrarModalVariables);
   variableModalCancel.addEventListener("click", cerrarModalVariables);
   modal.addEventListener("click", event => {
     if (event.target === modal) {
       cerrarModalVariables();
     }
-  });
-  variableModalInsert.addEventListener("click", () => {
-    if (!plantillaModalActual) {
-      return;
-    }
-
-    if (!validarVariablesModal()) {
-      return;
-    }
-
-    insertarEnChat(variablePreview.value);
-    cerrarModalVariables();
   });
 
   variableModalSend.addEventListener("click", () => {
@@ -661,7 +1039,8 @@ if (!document.getElementById("quick-button")) {
       return;
     }
 
-    insertarYEnviarEnChat(variablePreview.value);
+    const archivosAAdjuntar = [...archivosAdjuntosActuales];
+    insertarYEnviarTodo(variablePreview.value, archivosAAdjuntar);
     cerrarModalVariables();
   });
 
