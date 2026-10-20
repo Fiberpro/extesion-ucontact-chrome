@@ -14,6 +14,17 @@
       "128": "assets-2/logo-icon-128.png"
     }
   },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets-2/*"
+      ],
+      "matches": [
+        "https://fiberpro.ucontactcloud.com/*",
+        "https://app.iventas.com/*"
+      ]
+    }
+  ],
   "content_scripts": [
     {
       "matches": [

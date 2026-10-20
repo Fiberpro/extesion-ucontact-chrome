@@ -61,9 +61,9 @@ if (!document.getElementById("quick-button")) {
         </div>
         <div id="variable-fields"></div>
         <div class="variable-group variable-attachment-group">
-          <label class="variable-label">Adjuntar archivos (opcional)</label>
+          <label class="variable-label" id="variable-attachment-label">Adjuntar archivo (opcional)</label>
           <div id="variable-attachment-dropzone" class="variable-attachment-card">
-            <input type="file" id="variable-file-input" multiple style="display: none;">
+            <input type="file" id="variable-file-input" style="display: none;">
             <div id="variable-file-empty" class="variable-file-empty">
               <div class="variable-file-icon-wrap">
                 <svg viewBox="0 0 24 24" class="variable-clip-icon" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -72,9 +72,9 @@ if (!document.getElementById("quick-button")) {
               </div>
               <div class="variable-file-text-content">
                 <button type="button" id="variable-file-browse-btn" class="variable-file-browse-btn">
-                  Adjuntar archivos
+                  Adjuntar un solo archivo
                 </button>
-                <span class="variable-file-hint">o arrastra y suelta aquí (puedes seleccionar varios)</span>
+                <span class="variable-file-hint" id="variable-file-hint">o arrastra y suelta aquí (un solo archivo)</span>
               </div>
             </div>
             <div id="variable-file-selected" class="variable-file-selected" style="display: none;">
@@ -85,8 +85,8 @@ if (!document.getElementById("quick-button")) {
                   <button type="button" id="variable-file-add-more-btn" class="variable-file-btn-add-more" title="Agregar más archivos">
                     + Agregar más
                   </button>
-                  <button type="button" id="variable-file-clear-all-btn" class="variable-file-btn-clear-all" title="Quitar todos los archivos">
-                    Quitar todos
+                  <button type="button" id="variable-file-clear-all-btn" class="variable-file-btn-clear-all" title="Quitar archivo">
+                    Quitar archivo
                   </button>
                 </div>
               </div>
@@ -95,13 +95,6 @@ if (!document.getElementById("quick-button")) {
         </div>
       </div>
       <div class="variable-modal-actions">
-        <button id="variable-modal-attach" class="btn btn-secondary variable-btn-attach" type="button" title="Abrir explorador de archivos para adjuntar">
-          <svg viewBox="0 0 24 24" class="variable-clip-icon-sm" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
-          </svg>
-          <span id="variable-modal-attach-text">Adjuntar archivos</span>
-        </button>
-        <div class="variable-modal-actions-spacer"></div>
         <button id="variable-modal-cancel" class="btn btn-secondary" type="button">Cancelar</button>
         <button id="variable-modal-send" class="btn btn-primary" type="button">Enviar mensaje</button>
       </div>
@@ -327,15 +320,15 @@ if (!document.getElementById("quick-button")) {
   // Elementos para adjuntar archivos
   const variableFileInput = modal.querySelector("#variable-file-input");
   const variableAttachmentDropzone = modal.querySelector("#variable-attachment-dropzone");
+  const variableAttachmentLabel = modal.querySelector("#variable-attachment-label");
   const variableFileEmpty = modal.querySelector("#variable-file-empty");
   const variableFileSelected = modal.querySelector("#variable-file-selected");
   const variableFilesList = modal.querySelector("#variable-files-list");
   const variableFilesTotalInfo = modal.querySelector("#variable-files-total-info");
   const variableFileBrowseBtn = modal.querySelector("#variable-file-browse-btn");
+  const variableFileHint = modal.querySelector("#variable-file-hint");
   const variableFileAddMoreBtn = modal.querySelector("#variable-file-add-more-btn");
   const variableFileClearAllBtn = modal.querySelector("#variable-file-clear-all-btn");
-  const variableModalAttach = modal.querySelector("#variable-modal-attach");
-  const variableModalAttachText = modal.querySelector("#variable-modal-attach-text");
 
   let archivosAdjuntosActuales = [];
   let plantillaModalActual = null;
@@ -404,6 +397,15 @@ if (!document.getElementById("quick-button")) {
     }
   }
 
+  function simularClick(elemento) {
+    if (!elemento) return;
+    try {
+      elemento.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, view: window }));
+      elemento.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, cancelable: true, view: window }));
+    } catch (e) { }
+    elemento.click();
+  }
+
   function enviarMensajeChat(inputChat) {
     const selectoresEnviar = [
       ".send-message",
@@ -424,31 +426,104 @@ if (!document.getElementById("quick-button")) {
       .filter(elementoVisible)
       .find(Boolean);
 
+    let enviadoPorBoton = false;
+
     if (botonEnviar) {
-      const clickable = botonEnviar.closest("button, a, div, input") || botonEnviar;
+      const clickable = botonEnviar.closest("button, a, [role='button'], [ng-click], .btn, .btn-send") || botonEnviar;
       clickable.click();
       return true;
     }
 
-    if (!inputChat) {
-      return false;
+    if (inputChat) {
+      inputChat.focus();
+      ["keydown", "keypress", "keyup"].forEach(tipoEvento => {
+        inputChat.dispatchEvent(new KeyboardEvent(tipoEvento, {
+          bubbles: true,
+          cancelable: true,
+          key: "Enter",
+          code: "Enter",
+          which: 13,
+          keyCode: 13
+        }));
+      });
+      return true;
     }
 
-    ["keydown", "keypress", "keyup"].forEach(tipoEvento => {
-      inputChat.dispatchEvent(new KeyboardEvent(tipoEvento, {
-        bubbles: true,
-        cancelable: true,
-        key: "Enter",
-        code: "Enter",
-        which: 13,
-        keyCode: 13
-      }));
-    });
-
-    return true;
+    return false;
   }
 
-  function verificarYEnviarPendientes(inputChat) {
+  function hayAdjuntoDetectadoEnUContact() {
+    // 1. Modal activo de subida en uContact
+    const modalAbierto = [...document.querySelectorAll(".modal.in, .modal-dialog, [role='dialog']")]
+      .some(el => !modal.contains(el) && !panel.contains(el) && elementoVisible(el));
+    if (modalAbierto) return true;
+
+    // 2. Buscar únicamente dentro de la barra de entrada/footer del chat (NO en el historial de mensajes)
+    const contenedoresFooter = [...document.querySelectorAll('.chat-footer, .chat-message-input, .write-message, .chat-box, #chat-container')];
+    if (contenedoresFooter.length === 0) return false;
+
+    // Archivos en input file nativo del footer
+    const fileInputs = contenedoresFooter.flatMap(c => [...c.querySelectorAll('input[type="file"]')]);
+    if (fileInputs.some(fi => fi.files && fi.files.length > 0)) return true;
+
+    // Miniaturas o previews de adjuntos en preparación (dentro del footer)
+    const selectoresMiniaturas = [
+      "[class*='file-preview']",
+      "[class*='attachment-preview']",
+      "[class*='chat-attachment']",
+      "[class*='preview']",
+      "[class*='thumbnail']",
+      "[class*='attached']"
+    ];
+    return contenedoresFooter.some(c =>
+      [...c.querySelectorAll(selectoresMiniaturas.join(", "))].some(el => elementoVisible(el))
+    );
+  }
+
+  function limpiarAdjuntosEnUContact() {
+    try {
+      const fileInputs = [...document.querySelectorAll('input[type="file"]')].filter(el => !modal.contains(el));
+      fileInputs.forEach(fi => {
+        try {
+          fi.value = "";
+          fi.files = new DataTransfer().files;
+          fi.dispatchEvent(new Event("change", { bubbles: true }));
+        } catch (e) { }
+        if (window.angular) {
+          try {
+            const ngElem = window.angular.element(fi);
+            const scope = ngElem.scope();
+            const ngModel = fi.getAttribute("ng-model");
+            if (scope && ngModel) {
+              const keys = ngModel.split(".");
+              let target = scope;
+              for (let i = 0; i < keys.length - 1; i++) {
+                if (target[keys[i]]) target = target[keys[i]];
+              }
+              target[keys[keys.length - 1]] = null;
+              if (!scope.$$phase && !scope.$root.$$phase) {
+                scope.$apply();
+              }
+            }
+          } catch (e) { }
+        }
+      });
+
+      // También clickear cualquier botón de "eliminar adjunto" o "x" en el footer si existiera
+      const contenedoresFooter = [...document.querySelectorAll('.chat-footer, .chat-message-input, .write-message, .chat-box, #chat-container')];
+      contenedoresFooter.forEach(c => {
+        const botonesBorrar = [...c.querySelectorAll("[class*='remove'], [class*='delete'], [class*='cancel'], [class*='close'], .fa-times, .fa-trash")]
+          .filter(el => elementoVisible(el) && !modal.contains(el) && !panel.contains(el));
+        botonesBorrar.forEach(b => {
+          try { b.click(); } catch (e) { }
+        });
+      });
+    } catch (err) {
+      console.warn("[Quick Replies] Error al limpiar input file en uContact:", err);
+    }
+  }
+
+  function enviarAdjuntoChat(inputChat) {
     // 1. Si uContact abrió un modal o diálogo para confirmar la subida del archivo
     const selectoresBotonSubir = [
       ".modal.in button[class*='send']",
@@ -459,7 +534,8 @@ if (!document.getElementById("quick-button")) {
       "[role='dialog'] button[class*='send']",
       "[role='dialog'] .btn-primary",
       "button[ng-click*='upload']",
-      "button[ng-click*='sendFile']"
+      "button[ng-click*='sendFile']",
+      "button[ng-click*='sendAttachment']"
     ];
 
     const botonModal = [...document.querySelectorAll(selectoresBotonSubir.join(", "))]
@@ -468,21 +544,36 @@ if (!document.getElementById("quick-button")) {
     if (botonModal) {
       console.log("[Quick Replies] Confirmando subida de archivo en modal de uContact:", botonModal);
       botonModal.click();
-      return;
+      return true;
     }
 
-    // 2. Si uContact tiene archivos en el input de carga o previsualización de adjuntos
-    const fileInputs = [...document.querySelectorAll('input[type="file"]')]
-      .filter(el => !modal.contains(el));
-    const hayArchivosEnInput = fileInputs.some(fi => fi.files && fi.files.length > 0);
+    // 2. Si no hay modal emergente, enviar directamente en el chat
+    console.log("[Quick Replies] Enviando mensaje conjunto (archivo + texto) en uContact...");
+    return enviarMensajeChat(inputChat);
+  }
 
-    const chipsArchivo = [...document.querySelectorAll('.chat-attachment, .chat-file, .attachment-preview, .file-preview, [class*="attached"]')]
-      .filter(el => !modal.contains(el) && elementoVisible(el));
+  function esperarYEnviarAdjunto(inputChat, maxIntentos = 14) {
+    let intentos = 0;
+    const intervalo = 150; // cada 150ms
 
-    if (hayArchivosEnInput || chipsArchivo.length > 0) {
-      console.log("[Quick Replies] Enviando adjuntos pendientes en uContact (segundo envío)");
-      enviarMensajeChat(inputChat);
-    }
+    const checkTimer = setInterval(() => {
+      intentos++;
+      const adjuntoListo = hayAdjuntoDetectadoEnUContact();
+
+      if (adjuntoListo || intentos >= maxIntentos) {
+        clearInterval(checkTimer);
+        const tiempoTotal = intentos * intervalo;
+        if (adjuntoListo) {
+          console.log(`[Quick Replies] Archivo detectado listo en uContact (${tiempoTotal}ms). Enviando mensaje conjunto...`);
+        } else {
+          console.log(`[Quick Replies] Tiempo de espera alcanzado (${tiempoTotal}ms). Procediendo con el envío...`);
+        }
+
+        setTimeout(() => {
+          enviarAdjuntoChat(inputChat);
+        }, 250);
+      }
+    }, intervalo);
   }
 
   function insertarYEnviarTodo(texto, archivos) {
@@ -502,48 +593,395 @@ if (!document.getElementById("quick-button")) {
     }
 
     // =========================================================================
-    // FLUJO CON ARCHIVOS:
-    // 1. Enviar el texto como mensaje principal (una sola vez).
-    // 2. Limpiar la caja para que uContact no duplique el texto con cada archivo.
-    // 3. Adjuntar los archivos y enviarlos limpios a continuación.
+    // FLUJO CON ARCHIVOS (UN SOLO MENSAJE CONJUNTO EN UCONTACT):
+    // 1. El texto ya fue insertado en la caja de texto como pie/cuerpo.
+    // 2. Esperamos 300ms a que uContact asimile el texto en su modelo.
+    // 3. Adjuntamos el archivo en uContact sin borrar el texto.
+    // 4. Esperamos a que uContact procese el archivo y genere la miniatura.
+    // 5. Enviamos UNA SOLA VEZ para que salgan el PDF y el texto juntos en una sola burbuja.
     // =========================================================================
     setTimeout(() => {
-      // 1. Enviar el texto
-      enviarMensajeChat(inputChat);
-
-      // 2. Esperar que el mensaje de texto salga y limpiar la caja
-      setTimeout(() => {
-        try {
-          inputChat.value = "";
-          if (window.jQuery || window.$) {
-            (window.jQuery || window.$)(inputChat).val("").trigger("input").trigger("change");
-          }
-          inputChat.dispatchEvent(new Event("input", { bubbles: true }));
-          inputChat.dispatchEvent(new Event("change", { bubbles: true }));
-        } catch (e) {
-          console.warn("[Quick Replies] Error al limpiar caja tras enviar texto:", e);
-        }
-
-        // 3. Adjuntar los archivos con la caja de texto ya limpia
-        adjuntarArchivosEnChat(archivos);
-
-        // 4. Enviar los archivos adjuntos
-        setTimeout(() => {
-          verificarYEnviarPendientes(inputChat);
-
-          setTimeout(() => {
-            verificarYEnviarPendientes(inputChat);
-          }, 600);
-        }, 400);
-      }, 650);
-    }, 250);
+      adjuntarArchivosEnChat(archivos);
+      esperarYEnviarAdjunto(inputChat);
+    }, 300);
   }
 
   function insertarYEnviarEnChat(texto) {
     insertarYEnviarTodo(texto, []);
   }
 
-  // =========================
+  // =========================================================================
+  // INTEGRACIÓN DIRECTA CON CHAT Y ADJUNTOS DE UCONTACT (FLUJO 2)
+  // (Pega el texto del contrato en el chat y transfiere el PDF a input[id$="-input"])
+  // =========================================================================
+  function esperar(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+
+  function esPlantillaHSMMedia(plantilla, texto = "") {
+    if (!plantilla && !texto) return false;
+    const desc = String((plantilla && plantilla.descripcion) || texto || "").toLowerCase().trim();
+    const titulo = normalizarTexto((plantilla && plantilla.titulo) || "");
+
+    const esHSM = desc.startsWith("hsm;");
+    const tieneMedia = desc.includes(";document") || desc.includes(";media") || desc.includes(";file");
+    const esPaso2Luis = (titulo.includes("02 de 7") || titulo.includes("2 de 7")) && (titulo.includes("luis") || tieneMedia);
+    const esPaso7 = titulo.includes("07 de 7") || titulo.includes("7 de 7");
+
+    return (esHSM && (tieneMedia || esPaso7)) || esPaso2Luis;
+  }
+
+  async function enviarPlantillaHSMMedia(plantilla, archivos) {
+    const listaArchivos = Array.isArray(archivos) ? archivos : (archivos ? [archivos] : []);
+    if (listaArchivos.length === 0) {
+      alert("Por favor selecciona los archivos a adjuntar antes de enviar.");
+      return false;
+    }
+
+    console.log(`[Quick Replies] Flujo con archivos: Enviando ${listaArchivos.length} archivo(s) a uContact...`);
+
+    // 1. Obtener el texto del mensaje a enviar
+    let textoAEnviar = variablePreview.value || "";
+    const tituloNorm = normalizarTexto((plantilla && plantilla.titulo) || "");
+
+    // Si la descripción original es un comando HSM pero tenemos los textos limpios con variables
+    if (!textoAEnviar || textoAEnviar.toLowerCase().startsWith("hsm;")) {
+      if (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7")) {
+        textoAEnviar = "*Contrato 2 de 7*\n\nEstimado (a), le solicitamos nos envíe:\n1. Fotos de su DOCUMENTO DE IDENTIDAD (Anverso y reverso).\n2. Correo electrónico.\n3. Dirección completa del domicilio.\n\nEn adjunto le enviamos el *CONTRATO TIPO* del plan que desea contratar. (No requiere ser llenado).";
+      } else if (tituloNorm.includes("07 de 7") || tituloNorm.includes("7 de 7")) {
+        // En uContact, para enviar las variables del cuerpo (Codigo y Correo), el comando DEBE usar ;text;
+        // Si se usa ;document;, uContact no envia los parametros del cuerpo a Gupshup y Meta rechaza con: localizable_params (0)
+        textoAEnviar = textoAEnviar.replace(";document;", ";text;").trim();
+        // Asegurar que use el UUID oficial de la plantilla aprobada en Gupshup (contrato7de707)
+        textoAEnviar = textoAEnviar.replace("37665f6d-2637-40eb-b57d-8ce4aef77b9a", "679dec4a-358a-48b9-96ba-c98ac9b5d856");
+        textoAEnviar = textoAEnviar.replace("e36e4af9-901f-4998-bc31-de5acd70e3dd", "679dec4a-358a-48b9-96ba-c98ac9b5d856");
+      }
+    }
+
+    const selectoresFileInput = [
+      'input[id$="-input"]',
+      '.chat-footer input[type="file"]',
+      '.chat-message-input input[type="file"]',
+      '.chat-box input[type="file"]',
+      '.write-message input[type="file"]',
+      '#chat-container input[type="file"]',
+      'input[type="file"]'
+    ];
+
+    const selectoresEnviar = [
+      "[id$='-send']",
+      "button[id*='-send']",
+      ".send-message",
+      ".btn-send",
+      ".chat-send",
+      "[data-action='send']",
+      "[title*='Enviar' i]",
+      "[aria-label*='Enviar' i]",
+      "button[class*='send']",
+      "i.fa-send",
+      "i.fa-paper-plane"
+    ].join(", ");
+
+    function buscarBotonEnviarUContact() {
+      const candidatos = [...document.querySelectorAll(selectoresEnviar)]
+        .filter(el => !panel.contains(el) && !modal.contains(el) && elementoVisible(el));
+      if (candidatos.length === 0) return null;
+      const el = candidatos[0];
+      return el.closest("button, a, [role='button'], [ng-click], .btn, .btn-send, .inboxCommandButton") || el;
+    }
+
+    // Ordenar los archivos para que el CONTRATO vaya siempre primero y el FLUJO segundo
+    let archivosProcesados = [...listaArchivos].sort((a, b) => {
+      const aName = (a.name || "").toLowerCase();
+      const bName = (b.name || "").toLowerCase();
+      if (aName.includes("contrato") && !bName.includes("contrato")) return -1;
+      if (!aName.includes("contrato") && bName.includes("contrato")) return 1;
+      if (aName.includes("flujo") && !bName.includes("flujo")) return 1;
+      if (!aName.includes("flujo") && bName.includes("flujo")) return -1;
+      return 0;
+    });
+
+    // Paso 7: Se mantienen los archivos por separado (Contrato y Flujo) para enviarse
+    // en mensajes individuales respetando las reglas de Meta / WhatsApp.
+
+    const archivosOrdenados = archivosProcesados;
+    const primerArchivo = archivosOrdenados[0];
+    const archivosRestantes = archivosOrdenados.slice(1);
+
+    function asignarArchivoAFileInput(archivo) {
+      const fileInputs = [...document.querySelectorAll(selectoresFileInput.join(", "))]
+        .filter(el => !modal.contains(el) && !el.classList.contains("wppTemplateFile"));
+
+      if (fileInputs.length === 0) {
+        console.warn("[Quick Replies] No se encontró input file nativo en uContact.");
+        return false;
+      }
+
+      const fileInput = fileInputs[0];
+      try {
+        fileInput.multiple = false;
+        fileInput.value = "";
+      } catch (e) { }
+
+      const dt = new DataTransfer();
+      dt.items.add(archivo);
+      fileInput.files = dt.files;
+
+      fileInput.dispatchEvent(new Event("change", { bubbles: true }));
+      fileInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+      if (window.angular) {
+        try {
+          const ngElem = window.angular.element(fileInput);
+          const scope = ngElem.scope();
+          if (scope) {
+            const ngModel = fileInput.getAttribute("ng-model");
+            if (ngModel) {
+              const keys = ngModel.split(".");
+              let target = scope;
+              for (let i = 0; i < keys.length - 1; i++) {
+                if (target[keys[i]]) target = target[keys[i]];
+              }
+              target[keys[keys.length - 1]] = dt.files;
+            }
+            if (!scope.$$phase && !scope.$root.$$phase) {
+              scope.$apply();
+            }
+          }
+        } catch (e) { }
+      }
+      return true;
+    }
+
+    const esComandoHSM = textoAEnviar.toLowerCase().startsWith("hsm;");
+
+    // =========================================================================
+    // CASO A: SI ES COMANDO HSM CON BOTÓN (PASO 7)
+    // 1. Asegurar que uContact NO tenga archivos pendientes antes de enviar el HSM
+    // 2. Enviar primero la plantilla HSM limpia (con sus variables y botón web)
+    // 3. Esperar confirmación de despacho de uContact
+    // 4. Enviar en secuencia los PDFs adjuntos (Contrato y Flujo) como archivos reales
+    // =========================================================================
+    if (esComandoHSM) {
+      const totalPasos = 1 + archivosOrdenados.length;
+
+      if (variableModalSend) {
+        variableModalSend.innerText = `Enviando plantilla y botón (1/${totalPasos})...`;
+      }
+
+      // A.0 Limpiar cualquier adjunto previo en uContact para que el HSM salga como texto puro
+      limpiarAdjuntosEnUContact();
+      await esperar(200);
+
+      // A.1 Insertar comando HSM en chat y enviar
+      const inputChat = insertarEnChat(textoAEnviar);
+      if (!inputChat) {
+        console.warn("[Quick Replies] No se encontró la caja de chat de uContact.");
+        return false;
+      }
+      await esperar(300);
+
+      const botonEnviarHSM = buscarBotonEnviarUContact();
+      if (botonEnviarHSM) {
+        console.log("[Quick Replies] Enviando comando HSM con botón:", textoAEnviar);
+        simularClick(botonEnviarHSM);
+      } else {
+        inputChat.focus();
+        inputChat.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Enter", keyCode: 13 }));
+      }
+
+      // A.2 Enviar los archivos adjuntos (Contrato y Flujo) en secuencia limpia por separado
+      for (let idx = 0; idx < archivosOrdenados.length; idx++) {
+        const arch = archivosOrdenados[idx];
+        const numeroPaso = idx + 2;
+
+        if (variableModalSend) {
+          const archLower = arch.name.toLowerCase();
+          const nombreLabel = archLower.includes("contrato")
+            ? "Contrato PDF"
+            : (archLower.includes("flujo") ? "Flujo PDF" : arch.name);
+          variableModalSend.innerText = `Enviando ${nombreLabel} (${numeroPaso}/${totalPasos})...`;
+        }
+
+        console.log(`[Quick Replies] Esperando despacho previo para enviar archivo ${numeroPaso}/${totalPasos}: ${arch.name}...`);
+
+        // Esperar a que uContact termine de despachar el mensaje anterior
+        for (let i = 0; i < 30; i++) {
+          await esperar(200);
+          const clickable = buscarBotonEnviarUContact();
+          const estaHabilitado = clickable && !clickable.disabled && !clickable.classList.contains("disabled") && clickable.getAttribute("disabled") === null;
+          if (i >= 12 && estaHabilitado && !hayAdjuntoDetectadoEnUContact()) {
+            console.log(`[Quick Replies] Mensaje anterior confirmado despachado a los ${(i + 1) * 200}ms.`);
+            break;
+          }
+        }
+
+        // Limpiar texto de chat para que el PDF salga limpio
+        insertarEnChat("");
+        await esperar(300);
+
+        // Transferir archivo a uContact
+        console.log(`[Quick Replies] Asignando archivo ${numeroPaso}/${totalPasos}:`, arch.name);
+        asignarArchivoAFileInput(arch);
+
+        // Esperar a que uContact procese el archivo
+        for (let i = 0; i < 25; i++) {
+          await esperar(150);
+          const clickable = buscarBotonEnviarUContact();
+          if (clickable) {
+            const estaHabilitado = !clickable.disabled && !clickable.classList.contains("disabled") && clickable.getAttribute("disabled") === null;
+            if (estaHabilitado && (hayAdjuntoDetectadoEnUContact() || i >= 8)) {
+              break;
+            }
+          }
+        }
+        await esperar(300);
+
+        // Confirmar modal si existiera o clickear enviar
+        const selectoresBotonSubir = [
+          ".modal.in button[class*='send']",
+          ".modal.in button[class*='upload']",
+          ".modal.in .btn-primary",
+          ".modal-dialog button[class*='send']",
+          ".modal-dialog .btn-primary",
+          "[role='dialog'] button[class*='send']",
+          "[role='dialog'] .btn-primary",
+          "button[ng-click*='upload']",
+          "button[ng-click*='sendFile']",
+          "button[ng-click*='sendAttachment']"
+        ];
+        const botonModal = [...document.querySelectorAll(selectoresBotonSubir.join(", "))]
+          .filter(el => !modal.contains(el) && !panel.contains(el) && elementoVisible(el))[0];
+
+        if (botonModal) {
+          console.log(`[Quick Replies] Confirmando subida en modal uContact:`, botonModal);
+          simularClick(botonModal);
+        } else {
+          const botonEnviarArch = buscarBotonEnviarUContact();
+          if (botonEnviarArch) {
+            console.log(`[Quick Replies] Clickeando enviar para archivo ${numeroPaso}/${totalPasos}:`, botonEnviarArch);
+            simularClick(botonEnviarArch);
+          }
+          if (inputChat) {
+            inputChat.focus();
+            inputChat.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Enter", keyCode: 13 }));
+          }
+        }
+
+        // Si hay más archivos pendientes (ej. Contrato enviado, falta Flujo), dar tiempo a uContact y limpiar adjunto previo
+        if (idx < archivosOrdenados.length - 1) {
+          await esperar(1200);
+          limpiarAdjuntosEnUContact();
+        }
+      }
+
+      await esperar(800);
+      limpiarAdjuntosEnUContact();
+      return true;
+    }
+
+    // =========================================================================
+    // CASO B: MENSAJES NORMALES CON ADJUNTO DIRECTO (PASO 2)
+    // =========================================================================
+    if (variableModalSend) {
+      variableModalSend.innerText = archivosRestantes.length > 0 ? "Enviando contrato (1/2)..." : "Enviando...";
+    }
+
+    // B.1 Insertar texto en el chat
+    const inputChat = insertarEnChat(textoAEnviar);
+    if (!inputChat) {
+      console.warn("[Quick Replies] No se encontró la caja de chat de uContact.");
+      return false;
+    }
+    await esperar(300);
+
+    // B.2 Transferir el Contrato al input de archivos
+    console.log("[Quick Replies] Paso 1: Asignando primer archivo con texto:", primerArchivo.name);
+    asignarArchivoAFileInput(primerArchivo);
+
+    // B.3 Esperar a que uContact procese el archivo
+    for (let i = 0; i < 25; i++) {
+      await esperar(150);
+      const clickable = buscarBotonEnviarUContact();
+      if (clickable) {
+        const estaHabilitado = !clickable.disabled && !clickable.classList.contains("disabled") && clickable.getAttribute("disabled") === null;
+        if (estaHabilitado && (hayAdjuntoDetectadoEnUContact() || i >= 8)) {
+          break;
+        }
+      }
+    }
+    await esperar(300);
+
+    // B.4 Clickear botón de envío
+    const botonEnviar1 = buscarBotonEnviarUContact();
+    if (botonEnviar1) {
+      console.log("[Quick Replies] Clickeando enviar Mensaje 1 (Contrato con texto):", botonEnviar1);
+      simularClick(botonEnviar1);
+    } else if (inputChat) {
+      inputChat.focus();
+      inputChat.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Enter", keyCode: 13 }));
+    }
+
+    if (archivosRestantes.length === 0) {
+      await esperar(600);
+      return true;
+    }
+
+    for (let idx = 0; idx < archivosRestantes.length; idx++) {
+      const arch = archivosRestantes[idx];
+      const numeroPaso = idx + 2;
+      const totalPasos = archivosOrdenados.length;
+
+      if (variableModalSend) {
+        variableModalSend.innerText = `Enviando anexo (${numeroPaso}/${totalPasos})...`;
+      }
+
+      for (let i = 0; i < 30; i++) {
+        await esperar(200);
+        const clickable = buscarBotonEnviarUContact();
+        const estaHabilitado = clickable && !clickable.disabled && !clickable.classList.contains("disabled") && clickable.getAttribute("disabled") === null;
+        if (i >= 15 && estaHabilitado && !hayAdjuntoDetectadoEnUContact()) {
+          break;
+        }
+      }
+
+      insertarEnChat("");
+      await esperar(300);
+
+      asignarArchivoAFileInput(arch);
+
+      for (let i = 0; i < 25; i++) {
+        await esperar(150);
+        const clickable = buscarBotonEnviarUContact();
+        if (clickable) {
+          const estaHabilitado = !clickable.disabled && !clickable.classList.contains("disabled") && clickable.getAttribute("disabled") === null;
+          if (estaHabilitado && (hayAdjuntoDetectadoEnUContact() || i >= 8)) {
+            break;
+          }
+        }
+      }
+      await esperar(300);
+
+      const botonEnviarRest = buscarBotonEnviarUContact();
+      if (botonEnviarRest) {
+        simularClick(botonEnviarRest);
+      } else if (inputChat) {
+        inputChat.focus();
+        inputChat.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key: "Enter", keyCode: 13 }));
+      }
+
+      if (idx < archivosRestantes.length - 1) {
+        await esperar(1200);
+        limpiarAdjuntosEnUContact();
+      }
+    }
+
+    await esperar(800);
+    limpiarAdjuntosEnUContact();
+    return true;
+  }
+
   // VARIABLES EN PLANTILLAS
   // =========================
   function obtenerVariablesPlantilla(texto) {
@@ -585,6 +1023,18 @@ if (!document.getElementById("quick-button")) {
       return;
     }
 
+    const raw = String(plantillaModalActual.descripcion || "");
+    const titulo = normalizarTexto(plantillaModalActual.titulo || "");
+
+    if (raw.toLowerCase().startsWith("hsm;")) {
+      const tieneMedia = raw.toLowerCase().includes(";document") || raw.toLowerCase().includes(";media");
+      const esPaso2Luis = (titulo.includes("02 de 7") || titulo.includes("2 de 7")) && (titulo.includes("luis") || tieneMedia);
+      if (esPaso2Luis) {
+        variablePreview.value = "*Contrato 2 de 7*\n\nEstimado (a), le solicitamos nos envíe:\n1. Fotos de su DOCUMENTO DE IDENTIDAD (Anverso y reverso).\n2. Correo electrónico.\n3. Dirección completa del domicilio.\n\nEn adjunto le enviamos el *CONTRATO TIPO* del plan que desea contratar. (No requiere ser llenado).";
+        return;
+      }
+    }
+
     variablePreview.value = reemplazarVariables(plantillaModalActual.descripcion, obtenerValoresVariables());
   }
 
@@ -614,7 +1064,10 @@ if (!document.getElementById("quick-button")) {
     variableFields.innerHTML = "";
     variablePreview.value = "";
     resetearArchivosModal();
+    const attachmentGroup = modal.querySelector(".variable-attachment-group");
+    if (attachmentGroup) attachmentGroup.style.display = "block";
     variableModalSend.disabled = false;
+    variableModalSend.innerText = "Enviar mensaje";
   }
 
   function limpiarNombreLabel(nombre) {
@@ -676,64 +1129,149 @@ if (!document.getElementById("quick-button")) {
     };
   }
 
-  function abrirModalVariables(plantilla, variables) {
+  function plantillaRequiereModal(plantilla, variables = null) {
+    if (!plantilla) return false;
+
+    const vars = variables !== null ? variables : obtenerVariablesPlantilla(plantilla.descripcion);
+    if (vars && vars.length > 0) {
+      return true;
+    }
+
+    const tituloNorm = normalizarTexto(plantilla.titulo || "");
+    const descNorm = normalizarTexto(plantilla.descripcion || "");
+
+    // 1. Caso solicitado: Contrato 02 de 7 luis (con PDF adjunto) o Contrato 07 de 7 (que adjunta 2 archivos)
+    const tieneMedia = descNorm.includes(";document") || descNorm.includes(";media") || descNorm.includes(";file");
+    if (
+      (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7")) &&
+      (tituloNorm.includes("luis") || tieneMedia)
+    ) {
+      return true;
+    }
+
+
+    // 2. Cualquier plantilla cuyo título o descripción mencione PDF o adjuntar archivos
+    if (
+      tituloNorm.includes("pdf") ||
+      tituloNorm.includes("adjuntar") ||
+      tituloNorm.includes("adjunto") ||
+      tituloNorm.includes("anexo") ||
+      descNorm.includes("pdf") ||
+      descNorm.includes("adjunt")
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function abrirModalVariables(plantilla, variables = []) {
     plantillaModalActual = plantilla;
+    variableModalSend.disabled = false;
+    variableModalSend.innerText = "Enviar mensaje";
     const esHSM = String(plantilla.descripcion || "").toLowerCase().trim().startsWith("hsm;");
-    variableModalTitle.innerText = esHSM ? `⚡ [HSM Botones] ${plantilla.titulo}` : plantilla.titulo;
+    const esHSMBotones = esHSM && String(plantilla.descripcion || "").includes("=>");
+    variableModalTitle.innerText = esHSMBotones
+      ? `⚡ [HSM Botones] ${plantilla.titulo}`
+      : (esHSM ? `⚡ [HSM] ${plantilla.titulo}` : plantilla.titulo);
     cerrarPanel();
     resetearArchivosModal();
     variableFields.innerHTML = "";
 
-    variables.forEach((variableRaw, index) => {
-      const detalle = parsearDetalleVariable(variableRaw);
-      const wrapper = document.createElement("div");
-      wrapper.className = "variable-group";
+    const tituloNorm = normalizarTexto((plantilla && plantilla.titulo) || "");
+    const descNorm = normalizarTexto((plantilla && plantilla.descripcion) || "");
+    const tieneMedia = descNorm.includes(";document") || descNorm.includes(";media") || descNorm.includes(";file");
+    const esPaso2 = (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7")) && (tituloNorm.includes("luis") || tieneMedia);
+    const esPaso7 = tituloNorm.includes("07 de 7") || tituloNorm.includes("7 de 7");
 
-      const labelNombre = limpiarNombreLabel(detalle.nombre);
-      const label = document.createElement("label");
-      label.className = "variable-label";
-      label.innerText = labelNombre;
-      label.htmlFor = `variable-input-${index}`;
+    // Mostrar zona de adjuntos si admite archivos (como Contrato 02 de 7 o Contrato 07 de 7)
+    const attachmentGroup = modal.querySelector(".variable-attachment-group");
+    const admiteAdjunto = !esHSM || tieneMedia || esPaso2 || esPaso7;
+    if (attachmentGroup) {
+      attachmentGroup.style.display = admiteAdjunto ? "block" : "none";
+    }
 
-      let input;
+    const soloUnArchivo = esPaso2;
+    variableFileInput.multiple = !soloUnArchivo;
 
-      if (detalle.opciones.length > 0) {
-        input = document.createElement("select");
-        input.id = `variable-input-${index}`;
-        input.className = "variable-input variable-select";
-        input.dataset.variable = variableRaw;
-        input.required = true;
+    if (variableAttachmentLabel) {
+      variableAttachmentLabel.innerText = soloUnArchivo
+        ? "Adjuntar un solo archivo (opcional)"
+        : (esPaso7 ? "Adjuntar archivos (PDF Contrato y Flujo de conversación)" : "Adjuntar archivos (opcional)");
+    }
+    if (variableFileBrowseBtn) {
+      variableFileBrowseBtn.innerText = soloUnArchivo
+        ? "Adjuntar un solo archivo"
+        : (esPaso7 ? "Seleccionar archivos (PDFs)" : "Seleccionar archivos");
+    }
+    if (variableFileHint) {
+      variableFileHint.innerText = soloUnArchivo
+        ? "o arrastra y suelta aquí (un solo archivo)"
+        : (esPaso7 ? "o arrastra y suelta aquí el Contrato y el Flujo" : "o arrastra y suelta tus archivos aquí");
+    }
 
-        const defaultOption = document.createElement("option");
-        defaultOption.value = "";
-        defaultOption.innerText = `Seleccione ${labelNombre}...`;
-        defaultOption.disabled = true;
-        defaultOption.selected = true;
-        input.appendChild(defaultOption);
+    const tieneVariables = Array.isArray(variables) && variables.length > 0;
 
-        detalle.opciones.forEach(opcion => {
-          const opt = document.createElement("option");
-          opt.value = opcion.valor;
-          opt.innerText = opcion.texto;
-          input.appendChild(opt);
-        });
+    if (!tieneVariables) {
+      const nota = document.createElement("div");
+      nota.className = "variable-no-fields-note";
+      nota.innerHTML = `
+        <div style="font-weight: 600; margin-bottom: 2px;">📄 Listo para adjuntar un solo archivo</div>
+        <div>Esta plantilla no requiere variables de texto. Puedes adjuntar el archivo PDF a continuación antes de enviar (un solo archivo).</div>
+      `;
+      variableFields.appendChild(nota);
+    } else {
+      variables.forEach((variableRaw, index) => {
+        const detalle = parsearDetalleVariable(variableRaw);
+        const wrapper = document.createElement("div");
+        wrapper.className = "variable-group";
 
-        input.addEventListener("change", actualizarFormularioVariables);
-      } else {
-        input = document.createElement("input");
-        input.id = `variable-input-${index}`;
-        input.className = "variable-input";
-        input.dataset.variable = variableRaw;
-        input.type = "text";
-        input.placeholder = `Valor para {{${labelNombre}}}`;
-        input.required = true;
-        input.addEventListener("input", actualizarFormularioVariables);
-      }
+        const labelNombre = limpiarNombreLabel(detalle.nombre);
+        const label = document.createElement("label");
+        label.className = "variable-label";
+        label.innerText = labelNombre;
+        label.htmlFor = `variable-input-${index}`;
 
-      wrapper.appendChild(label);
-      wrapper.appendChild(input);
-      variableFields.appendChild(wrapper);
-    });
+        let input;
+
+        if (detalle.opciones.length > 0) {
+          input = document.createElement("select");
+          input.id = `variable-input-${index}`;
+          input.className = "variable-input variable-select";
+          input.dataset.variable = variableRaw;
+          input.required = true;
+
+          const defaultOption = document.createElement("option");
+          defaultOption.value = "";
+          defaultOption.innerText = `Seleccione ${labelNombre}...`;
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          input.appendChild(defaultOption);
+
+          detalle.opciones.forEach(opcion => {
+            const opt = document.createElement("option");
+            opt.value = opcion.valor;
+            opt.innerText = opcion.texto;
+            input.appendChild(opt);
+          });
+
+          input.addEventListener("change", actualizarFormularioVariables);
+        } else {
+          input = document.createElement("input");
+          input.id = `variable-input-${index}`;
+          input.className = "variable-input";
+          input.dataset.variable = variableRaw;
+          input.type = "text";
+          input.placeholder = `Valor para {{${labelNombre}}}`;
+          input.required = true;
+          input.addEventListener("input", actualizarFormularioVariables);
+        }
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        variableFields.appendChild(wrapper);
+      });
+    }
 
     actualizarFormularioVariables();
     modal.classList.add("show");
@@ -742,6 +1280,8 @@ if (!document.getElementById("quick-button")) {
 
     if (primerInput) {
       primerInput.focus();
+    } else if (variableFileBrowseBtn) {
+      variableFileBrowseBtn.focus();
     }
   }
 
@@ -756,12 +1296,13 @@ if (!document.getElementById("quick-button")) {
 
     const variables = obtenerVariablesPlantilla(plantilla.descripcion);
 
-    if (!variables.length) {
-      insertarEnChat(plantilla.descripcion);
+    if (plantillaRequiereModal(plantilla, variables)) {
+      abrirModalVariables(plantilla, variables);
       return;
     }
 
-    abrirModalVariables(plantilla, variables);
+    cerrarPanel();
+    insertarEnChat(plantilla.descripcion);
   }
 
   // =========================
@@ -792,13 +1333,12 @@ if (!document.getElementById("quick-button")) {
 
   function renderizarListaArchivos() {
     variableFilesList.innerHTML = "";
+    const permiteMultiples = variableFileInput.multiple;
 
     if (archivosAdjuntosActuales.length === 0) {
       variableFileEmpty.style.display = "flex";
       variableFileSelected.style.display = "none";
       variableAttachmentDropzone.classList.remove("has-file");
-      variableModalAttachText.innerText = "Adjuntar archivos";
-      variableModalAttach.classList.remove("has-file");
       return;
     }
 
@@ -808,10 +1348,25 @@ if (!document.getElementById("quick-button")) {
 
     const totalBytes = archivosAdjuntosActuales.reduce((sum, f) => sum + (f.size || 0), 0);
     const count = archivosAdjuntosActuales.length;
-    variableFilesTotalInfo.innerText = `${count} ${count === 1 ? "archivo" : "archivos"} (${formatearTamanoArchivo(totalBytes)})`;
+    variableFilesTotalInfo.innerText = permiteMultiples
+      ? `${count} ${count === 1 ? "archivo" : "archivos"} (${formatearTamanoArchivo(totalBytes)})`
+      : `1 archivo seleccionado (${formatearTamanoArchivo(totalBytes)})`;
 
-    variableModalAttachText.innerText = `${count} ${count === 1 ? "archivo adjunto" : "archivos adjuntos"}`;
-    variableModalAttach.classList.add("has-file");
+    if (variableFileAddMoreBtn) {
+      if (permiteMultiples) {
+        variableFileAddMoreBtn.style.display = "inline-flex";
+        variableFileAddMoreBtn.innerText = "+ Agregar más";
+        variableFileAddMoreBtn.title = "Agregar más archivos";
+      } else {
+        variableFileAddMoreBtn.style.display = "inline-flex";
+        variableFileAddMoreBtn.innerText = "Cambiar archivo";
+        variableFileAddMoreBtn.title = "Seleccionar otro archivo";
+      }
+    }
+
+    if (variableFileClearAllBtn) {
+      variableFileClearAllBtn.innerText = permiteMultiples ? "Quitar todos" : "Quitar archivo";
+    }
 
     archivosAdjuntosActuales.forEach((file, index) => {
       const item = document.createElement("div");
@@ -862,6 +1417,15 @@ if (!document.getElementById("quick-button")) {
     if (!nuevosArchivos || !nuevosArchivos.length) return;
 
     const lista = Array.from(nuevosArchivos);
+    const permiteMultiples = variableFileInput.multiple;
+
+    if (!permiteMultiples) {
+      // Modo archivo único (Paso 2): solo 1 archivo permitido, reemplaza el anterior
+      archivosAdjuntosActuales = [lista[0]];
+      renderizarListaArchivos();
+      return;
+    }
+
     for (const archivo of lista) {
       const yaExiste = archivosAdjuntosActuales.some(
         a => a.name === archivo.name && a.size === archivo.size && a.lastModified === archivo.lastModified
@@ -885,6 +1449,8 @@ if (!document.getElementById("quick-button")) {
     archivosAdjuntosActuales = [];
     variableFileInput.value = "";
     renderizarListaArchivos();
+    variableModalSend.disabled = false;
+    variableModalSend.innerText = "Enviar mensaje";
   }
 
   function adjuntarArchivosEnChat(archivos) {
@@ -964,7 +1530,6 @@ if (!document.getElementById("quick-button")) {
   }
 
   // Eventos de adjunto en modal
-  variableModalAttach.addEventListener("click", abrirExploradorArchivos);
   variableFileBrowseBtn.addEventListener("click", event => {
     event.stopPropagation();
     abrirExploradorArchivos();
@@ -1030,7 +1595,7 @@ if (!document.getElementById("quick-button")) {
     }
   });
 
-  variableModalSend.addEventListener("click", () => {
+  variableModalSend.addEventListener("click", async () => {
     if (!plantillaModalActual) {
       return;
     }
@@ -1040,6 +1605,35 @@ if (!document.getElementById("quick-button")) {
     }
 
     const archivosAAdjuntar = [...archivosAdjuntosActuales];
+    const tieneArchivos = archivosAAdjuntar.length > 0;
+    const esHSMMedia = esPlantillaHSMMedia(plantillaModalActual, variablePreview.value);
+
+    // Si la plantilla es HSM Media o si el usuario adjuntó archivos en el modal (como en Paso 2 o Paso 7)
+    if (esHSMMedia || tieneArchivos) {
+      if (esHSMMedia && archivosAAdjuntar.length === 0) {
+        alert("Por favor adjunta los archivos requeridos antes de enviar.");
+        return;
+      }
+
+      variableModalSend.disabled = true;
+      variableModalSend.innerText = "Transfiriendo a uContact...";
+
+      try {
+        const enviado = await enviarPlantillaHSMMedia(plantillaModalActual, archivosAAdjuntar);
+        if (enviado) {
+          cerrarModalVariables();
+        } else {
+          variableModalSend.disabled = false;
+          variableModalSend.innerText = "Enviar mensaje";
+        }
+      } catch (err) {
+        console.error("[Quick Replies] Error al enviar plantilla con archivos:", err);
+        variableModalSend.disabled = false;
+        variableModalSend.innerText = "Enviar mensaje";
+      }
+      return;
+    }
+
     insertarYEnviarTodo(variablePreview.value, archivosAAdjuntar);
     cerrarModalVariables();
   });
