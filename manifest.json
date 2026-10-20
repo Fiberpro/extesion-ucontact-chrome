@@ -30,7 +30,8 @@
       "matches": [
         "https://fiberpro.ucontactcloud.com/views/agent.html/*",
         "https://fiberpro.ucontactcloud.com/views/portal.html/*",
-        "https://app.iventas.com/chat"
+        "https://app.iventas.com/chat",
+        "https://mi.fiberpro.com.pe/agentes/panel"
       ],
       "js": [
         "content.js"
