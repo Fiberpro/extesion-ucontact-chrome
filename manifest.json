@@ -17,11 +17,16 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "assets-2/*"
+        "assets-2/*",
+        "contratos/*",
+        "contratos/INTERNET/*",
+        "contratos/INTERNET_FIBERTV/*",
+        "contratos/INTERNET_FIBERTV_L1/*"
       ],
       "matches": [
         "https://fiberpro.ucontactcloud.com/*",
-        "https://app.iventas.com/*"
+        "https://app.iventas.com/*",
+        "https://mi.fiberpro.com.pe/*"
       ]
     }
   ],
@@ -31,7 +36,8 @@
         "https://fiberpro.ucontactcloud.com/views/agent.html/*",
         "https://fiberpro.ucontactcloud.com/views/portal.html/*",
         "https://app.iventas.com/chat",
-        "https://mi.fiberpro.com.pe/agentes/panel"
+        "https://mi.fiberpro.com.pe/agentes/panel",
+        "https://mi.fiberpro.com.pe/supervisor/panel"
       ],
       "js": [
         "content.js"

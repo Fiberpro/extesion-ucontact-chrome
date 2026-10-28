@@ -501,6 +501,79 @@
 /* =========================================
    ADJUNTAR ARCHIVO EN MODAL DE VARIABLES
    ========================================= */
+.variable-contract-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+  margin-bottom: 2px;
+}
+
+.variable-contract-select {
+  border: 1.5px solid #93c5fd !important;
+  background-color: #f8faff !important;
+  font-weight: 500;
+  color: #1e3a8a !important;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variable-contract-select:hover {
+  border-color: #3b82f6 !important;
+  background-color: #eff6ff !important;
+}
+
+.variable-contract-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2) !important;
+}
+
+.variable-contract-select optgroup {
+  font-weight: 700;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 4px;
+}
+
+.variable-contract-select option {
+  font-weight: 400;
+  color: #334155;
+  background: #ffffff;
+  padding: 6px 10px;
+}
+
+.variable-contract-divider {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin: 6px 0 2px;
+  position: relative;
+  text-align: center;
+}
+
+.variable-contract-divider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.variable-contract-divider span {
+  background: #ffffff;
+  color: #94a3b8;
+  font-size: 0.76rem;
+  padding: 0 10px;
+  position: relative;
+  z-index: 2;
+  text-transform: lowercase;
+}
+
 .variable-attachment-group {
   display: flex;
   flex-direction: column;

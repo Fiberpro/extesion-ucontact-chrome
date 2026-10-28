@@ -60,6 +60,36 @@ if (!document.getElementById("quick-button")) {
           <textarea id="variable-preview" readonly></textarea>
         </div>
         <div id="variable-fields"></div>
+        <div id="variable-contract-group" class="variable-group variable-contract-group" style="display: none;">
+          <label class="variable-label" for="variable-contract-select">📄 Seleccionar Contrato Tipo (Plan)</label>
+          <select id="variable-contract-select" class="variable-input variable-select variable-contract-select">
+            <option value="">-- Elige un plan para adjuntar el contrato PDF --</option>
+            <optgroup label="🌐 SOLO INTERNET (5 planes)">
+              <option value="contratos/INTERNET/Contrato 300 Mbps Fiberpro 2026SOI.pdf" data-name="Contrato 300 Mbps Fiberpro.pdf">Contrato 300 Mbps Fiberpro</option>
+              <option value="contratos/INTERNET/Contrato 700Mbps Fiberpro 2026SOI.pdf" data-name="Contrato 700 Mbps Fiberpro.pdf">Contrato 700 Mbps Fiberpro</option>
+              <option value="contratos/INTERNET/Contrato 800Mbps Fiberpro 2026SOI.pdf" data-name="Contrato 800 Mbps Fiberpro.pdf">Contrato 800 Mbps Fiberpro</option>
+              <option value="contratos/INTERNET/Contrato 900Mbps+1 Fiberpro 2026SOI.pdf" data-name="Contrato 900 Mbps+1 Fiberpro.pdf">Contrato 900 Mbps+1 Fiberpro</option>
+              <option value="contratos/INTERNET/Contrato 1000Mbps+2 Fiberpro 2026SOI.pdf" data-name="Contrato 1000 Mbps+2 Fiberpro.pdf">Contrato 1000 Mbps+2 Fiberpro</option>
+            </optgroup>
+            <optgroup label="📺 INTERNET + FIBERTV (5 planes)">
+              <option value="contratos/INTERNET_FIBERTV/Contrato 300 Mbps FIBERTV Fiberpro 2026SOI.pdf" data-name="Contrato 300 Mbps FIBERTV Fiberpro.pdf">Contrato 300 Mbps FIBERTV Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV/Contrato 700 Mbps FIBERTV Fiberpro 2026SOI.pdf" data-name="Contrato 700 Mbps FIBERTV Fiberpro.pdf">Contrato 700 Mbps FIBERTV Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV/Contrato 800 Mbps FIBERTV Fiberpro 2026SOI.pdf" data-name="Contrato 800 Mbps FIBERTV Fiberpro.pdf">Contrato 800 Mbps FIBERTV Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV/Contrato 900 Mbps FIBERTV +1  Fiberpro 2026SOI.pdf" data-name="Contrato 900 Mbps FIBERTV +1 Fiberpro.pdf">Contrato 900 Mbps FIBERTV +1 Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV/Contrato 1000 Mbps FIBERTV +2  Fiberpro 2026SOI.pdf" data-name="Contrato 1000 Mbps FIBERTV +2 Fiberpro.pdf">Contrato 1000 Mbps FIBERTV +2 Fiberpro</option>
+            </optgroup>
+            <optgroup label="⚽ INTERNET + FIBERTV + LIGA 1 (5 planes)">
+              <option value="contratos/INTERNET_FIBERTV_L1/Contrato 300 Mbps FIBERTV-L1 Fiberpro 2026SOI.pdf" data-name="Contrato 300 Mbps FIBERTV-L1 Fiberpro.pdf">Contrato 300 Mbps FIBERTV-L1 Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV_L1/Contrato 700 Mbps FIBERTV-L1 Fiberpro 2026SOI.pdf" data-name="Contrato 700 Mbps FIBERTV-L1 Fiberpro.pdf">Contrato 700 Mbps FIBERTV-L1 Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV_L1/Contrato 800 Mbps FIBERTV-L1 Fiberpro 2026SOI.pdf" data-name="Contrato 800 Mbps FIBERTV-L1 Fiberpro.pdf">Contrato 800 Mbps FIBERTV-L1 Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV_L1/Contrato 900 Mbps FIBERTV-L1 +1 Fiberpro 2026SOI.pdf" data-name="Contrato 900 Mbps FIBERTV-L1 +1 Fiberpro.pdf">Contrato 900 Mbps FIBERTV-L1 +1 Fiberpro</option>
+              <option value="contratos/INTERNET_FIBERTV_L1/Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro 2026SOI.pdf" data-name="Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro.pdf">Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro</option>
+            </optgroup>
+          </select>
+          <div class="variable-contract-divider">
+            <span>o adjunta manualmente desde tu equipo</span>
+          </div>
+        </div>
         <div class="variable-group variable-attachment-group">
           <label class="variable-label" id="variable-attachment-label">Adjuntar archivo (opcional)</label>
           <div id="variable-attachment-dropzone" class="variable-attachment-card">
@@ -329,6 +359,8 @@ if (!document.getElementById("quick-button")) {
   const variableFileHint = modal.querySelector("#variable-file-hint");
   const variableFileAddMoreBtn = modal.querySelector("#variable-file-add-more-btn");
   const variableFileClearAllBtn = modal.querySelector("#variable-file-clear-all-btn");
+  const variableContractGroup = modal.querySelector("#variable-contract-group");
+  const variableContractSelect = modal.querySelector("#variable-contract-select");
 
   let archivosAdjuntosActuales = [];
   let plantillaModalActual = null;
@@ -626,10 +658,10 @@ if (!document.getElementById("quick-button")) {
 
     const esHSM = desc.startsWith("hsm;");
     const tieneMedia = desc.includes(";document") || desc.includes(";media") || desc.includes(";file");
-    const esPaso2Luis = (titulo.includes("02 de 7") || titulo.includes("2 de 7")) && (titulo.includes("luis") || tieneMedia);
+    const esPaso2 = titulo.includes("02 de 7") || titulo.includes("2 de 7");
     const esPaso7 = titulo.includes("07 de 7") || titulo.includes("7 de 7");
 
-    return (esHSM && (tieneMedia || esPaso7)) || esPaso2Luis;
+    return (esHSM && (tieneMedia || esPaso7)) || esPaso2;
   }
 
   async function enviarPlantillaHSMMedia(plantilla, archivos) {
@@ -1027,9 +1059,8 @@ if (!document.getElementById("quick-button")) {
     const titulo = normalizarTexto(plantillaModalActual.titulo || "");
 
     if (raw.toLowerCase().startsWith("hsm;")) {
-      const tieneMedia = raw.toLowerCase().includes(";document") || raw.toLowerCase().includes(";media");
-      const esPaso2Luis = (titulo.includes("02 de 7") || titulo.includes("2 de 7")) && (titulo.includes("luis") || tieneMedia);
-      if (esPaso2Luis) {
+      const esPaso2 = titulo.includes("02 de 7") || titulo.includes("2 de 7");
+      if (esPaso2) {
         variablePreview.value = "*Contrato 2 de 7*\n\nEstimado (a), le solicitamos nos envíe:\n1. Fotos de su DOCUMENTO DE IDENTIDAD (Anverso y reverso).\n2. Correo electrónico.\n3. Dirección completa del domicilio.\n\nEn adjunto le enviamos el *CONTRATO TIPO* del plan que desea contratar. (No requiere ser llenado).";
         return;
       }
@@ -1140,12 +1171,13 @@ if (!document.getElementById("quick-button")) {
     const tituloNorm = normalizarTexto(plantilla.titulo || "");
     const descNorm = normalizarTexto(plantilla.descripcion || "");
 
-    // 1. Caso solicitado: Contrato 02 de 7 luis (con PDF adjunto) o Contrato 07 de 7 (que adjunta 2 archivos)
-    const tieneMedia = descNorm.includes(";document") || descNorm.includes(";media") || descNorm.includes(";file");
-    if (
-      (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7")) &&
-      (tituloNorm.includes("luis") || tieneMedia)
-    ) {
+    // Excluir explícitamente Términos y condiciones si no tiene variables
+    if (tituloNorm.includes("terminos y condiciones")) {
+      return false;
+    }
+
+    // 1. Caso solicitado: Contrato 02 de 7 o Contrato 07 de 7
+    if (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7") || tituloNorm.includes("07 de 7") || tituloNorm.includes("7 de 7")) {
       return true;
     }
 
@@ -1181,12 +1213,21 @@ if (!document.getElementById("quick-button")) {
     const tituloNorm = normalizarTexto((plantilla && plantilla.titulo) || "");
     const descNorm = normalizarTexto((plantilla && plantilla.descripcion) || "");
     const tieneMedia = descNorm.includes(";document") || descNorm.includes(";media") || descNorm.includes(";file");
-    const esPaso2 = (tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7")) && (tituloNorm.includes("luis") || tieneMedia);
-    const esPaso7 = tituloNorm.includes("07 de 7") || tituloNorm.includes("7 de 7");
+    const esPaso2 = tituloNorm.includes("02 de 7") || tituloNorm.includes("2 de 7") || tituloNorm.includes("paso 2");
+    const esPaso7 = tituloNorm.includes("07 de 7") || tituloNorm.includes("7 de 7") || tituloNorm.includes("paso 7");
+    const esTerminos = tituloNorm.includes("terminos y condiciones");
 
-    // Mostrar zona de adjuntos si admite archivos (como Contrato 02 de 7 o Contrato 07 de 7)
+    // Mostrar selector de contratos predefinidos ÚNICAMENTE en el Paso 2
+    if (variableContractGroup) {
+      variableContractGroup.style.display = esPaso2 ? "block" : "none";
+    }
+    if (variableContractSelect) {
+      variableContractSelect.value = "";
+    }
+
+    // Mostrar zona de adjuntos si admite archivos (como Contrato 02 de 7 o Contrato 07 de 7), excepto en Términos y condiciones
     const attachmentGroup = modal.querySelector(".variable-attachment-group");
-    const admiteAdjunto = !esHSM || tieneMedia || esPaso2 || esPaso7;
+    const admiteAdjunto = !esTerminos && (!esHSM || tieneMedia || esPaso2 || esPaso7);
     if (attachmentGroup) {
       attachmentGroup.style.display = admiteAdjunto ? "block" : "none";
     }
@@ -1440,7 +1481,14 @@ if (!document.getElementById("quick-button")) {
 
   function quitarArchivo(index) {
     if (index >= 0 && index < archivosAdjuntosActuales.length) {
+      const archivoRemovido = archivosAdjuntosActuales[index];
       archivosAdjuntosActuales.splice(index, 1);
+      if (archivoRemovido && archivoRemovido._esContratoPredefinido && variableContractSelect) {
+        variableContractSelect.value = "";
+      }
+      if (archivosAdjuntosActuales.length === 0 && variableContractSelect) {
+        variableContractSelect.value = "";
+      }
       renderizarListaArchivos();
     }
   }
@@ -1448,6 +1496,9 @@ if (!document.getElementById("quick-button")) {
   function resetearArchivosModal() {
     archivosAdjuntosActuales = [];
     variableFileInput.value = "";
+    if (variableContractSelect) {
+      variableContractSelect.value = "";
+    }
     renderizarListaArchivos();
     variableModalSend.disabled = false;
     variableModalSend.innerText = "Enviar mensaje";
@@ -1530,6 +1581,41 @@ if (!document.getElementById("quick-button")) {
   }
 
   // Eventos de adjunto en modal
+  if (variableContractSelect) {
+    variableContractSelect.addEventListener("change", async () => {
+      const rutaRelativa = variableContractSelect.value;
+      if (!rutaRelativa) {
+        archivosAdjuntosActuales = archivosAdjuntosActuales.filter(f => !f._esContratoPredefinido);
+        renderizarListaArchivos();
+        return;
+      }
+
+      try {
+        const optionSelected = variableContractSelect.options[variableContractSelect.selectedIndex];
+        const nombreArchivo = (optionSelected && optionSelected.dataset.name) || rutaRelativa.split("/").pop();
+
+        const url = chrome.runtime.getURL(rutaRelativa);
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const blob = await res.blob();
+        const archivo = new File([blob], nombreArchivo, { type: "application/pdf" });
+        archivo._esContratoPredefinido = true;
+
+        if (variableFileInput.multiple) {
+          archivosAdjuntosActuales = archivosAdjuntosActuales.filter(f => !f._esContratoPredefinido);
+          archivosAdjuntosActuales.unshift(archivo);
+        } else {
+          archivosAdjuntosActuales = [archivo];
+        }
+
+        renderizarListaArchivos();
+      } catch (err) {
+        console.error("[Quick Replies] Error cargando PDF de contrato:", err);
+        alert("Error al cargar el PDF del contrato: " + err.message);
+      }
+    });
+  }
+
   variableFileBrowseBtn.addEventListener("click", event => {
     event.stopPropagation();
     abrirExploradorArchivos();
@@ -1560,6 +1646,9 @@ if (!document.getElementById("quick-button")) {
 
   variableFileInput.addEventListener("change", () => {
     if (variableFileInput.files && variableFileInput.files.length > 0) {
+      if (!variableFileInput.multiple && variableContractSelect) {
+        variableContractSelect.value = "";
+      }
       agregarArchivos(variableFileInput.files);
       variableFileInput.value = "";
     }
