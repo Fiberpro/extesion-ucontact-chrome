@@ -86,9 +86,6 @@ if (!document.getElementById("quick-button")) {
               <option value="contratos/INTERNET_FIBERTV_L1/Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro 2026SOI.pdf" data-name="Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro.pdf">Contrato 1000 Mbps FIBERTV-L1 +2 Fiberpro</option>
             </optgroup>
           </select>
-          <div class="variable-contract-divider">
-            <span>o adjunta manualmente desde tu equipo</span>
-          </div>
         </div>
         <div class="variable-group variable-attachment-group">
           <label class="variable-label" id="variable-attachment-label">Adjuntar archivo (opcional)</label>
@@ -1225,9 +1222,9 @@ if (!document.getElementById("quick-button")) {
       variableContractSelect.value = "";
     }
 
-    // Mostrar zona de adjuntos si admite archivos (como Contrato 02 de 7 o Contrato 07 de 7), excepto en Términos y condiciones
+    // Mostrar zona de adjuntos manuales si admite archivos (como Contrato 07 de 7), excepto en Paso 2 y Términos y condiciones
     const attachmentGroup = modal.querySelector(".variable-attachment-group");
-    const admiteAdjunto = !esTerminos && (!esHSM || tieneMedia || esPaso2 || esPaso7);
+    const admiteAdjunto = !esTerminos && !esPaso2 && (!esHSM || tieneMedia || esPaso7);
     if (attachmentGroup) {
       attachmentGroup.style.display = admiteAdjunto ? "block" : "none";
     }
@@ -1256,10 +1253,17 @@ if (!document.getElementById("quick-button")) {
     if (!tieneVariables) {
       const nota = document.createElement("div");
       nota.className = "variable-no-fields-note";
-      nota.innerHTML = `
-        <div style="font-weight: 600; margin-bottom: 2px;">📄 Listo para adjuntar un solo archivo</div>
-        <div>Esta plantilla no requiere variables de texto. Puedes adjuntar el archivo PDF a continuación antes de enviar (un solo archivo).</div>
-      `;
+      if (esPaso2) {
+        nota.innerHTML = `
+          <div style="font-weight: 600; margin-bottom: 2px;">📄 Listo para enviar contrato tipo</div>
+          <div>Esta plantilla no requiere variables de texto. Selecciona el plan del contrato PDF a continuación antes de enviar.</div>
+        `;
+      } else {
+        nota.innerHTML = `
+          <div style="font-weight: 600; margin-bottom: 2px;">📄 Listo para adjuntar archivo</div>
+          <div>Esta plantilla no requiere variables de texto. Puedes adjuntar el archivo PDF a continuación antes de enviar.</div>
+        `;
+      }
       variableFields.appendChild(nota);
     } else {
       variables.forEach((variableRaw, index) => {

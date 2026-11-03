@@ -1,0 +1,1199 @@
+<data>
+  <xpath expr="//field[@name='date_assign']" position="replace"/>
+  <xpath expr="//form[1]" position="attributes">
+    <attribute name="create">true</attribute>
+    <attribute name="delete">true</attribute>
+  </xpath>
+  <xpath expr="//form[1]/header[1]/field[@name='stage_id']" position="attributes">
+    <attribute name="force_save">1</attribute>
+    <attribute name="readonly">uid != 6</attribute>
+  </xpath>
+  <xpath expr="//field[@name='personal_stage_type_id']" position="attributes">
+    <attribute name="invisible">True</attribute>
+  </xpath>
+  <xpath expr="//field[@name='personal_stage_type_id']" position="after">
+    <button string="HECHO" name="706" confirm="¿Estas seguro en dar Hecho la actividad?" class="btn-success" type="action" groups="project.group_project_user" invisible="stage_id == 4" icon="fa-check"/>
+    <button string="CANCELAR" name="707" class="btn-danger" type="action" groups="project.group_project_user" invisible="stage_id in [4,5]" icon="fa-times"/>
+    <button string="Verif. MAC USADA" name="1436" class="btn-warning" type="action" groups="project.group_project_user" invisible="project_id != 1 or stage_id == 4" icon="fa-cogs"/>
+    <button string="CONSTANCIA" name="1434" confirm="¿Estas seguro en crear visita de constancia?" class="btn-info" type="action" groups="project.group_project_user" invisible="stage_id in [1, 5, 4]" icon="fa-file"/>
+    <button string="INTERRUPCIÓN" name="1443" confirm="¿Estas seguro en crear un ticket de interrupción?" class="btn-dark" type="action" groups="project.group_project_user" invisible="project_id != 3 or x_tiene_ticket == True" icon="fa-money"/>
+  </xpath>
+  <xpath expr="//button[@name='action_uid23_edit_partner_address']" position="attributes">
+    <attribute name="invisible">( stage_id != 2 and stage_id != 3 ) or x_studio_diagnostico_aacc_id != 42 and x_studio_diagnostico_aacc_id != 96</attribute>
+  </xpath>
+  <xpath expr="//button[@name='action_view_documents_project_task']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//button[@name='action_view_documents_project_task']" position="after">
+    <button class="oe_stat_button" icon="fa-tasks" type="action" name="1502">
+      <field widget="statinfo" name="x_x_studio_project_task_id_project_task_count" string="Visitas y Retiros"/>
+    </button>
+  </xpath>
+  <xpath expr="//button[@name='action_open_helpdesk_ticket']" position="after">
+    <button class="oe_stat_button" icon="fa-phone" type="action" name="studio_customization.noc_3d1dddf0-76b2-41a6-b6d2-bc64e8be3166">
+      <field widget="statinfo" name="x_x_studio_tarea_instalacion_x_detalle_de_ticket_count" string="NOC"/>
+    </button>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/div[not(@name)][1]/h1[1]/div[1]/field[@name='priority']" position="attributes">
+    <attribute name="readonly">True</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/div[not(@name)][1]/h1[1]/div[2]/field[@name='state']" position="attributes">
+    <attribute name="force_save">0</attribute>
+    <attribute name="invisible">False</attribute>
+    <attribute name="readonly">False</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]" position="before">
+    <group name="1parte">
+      <group colspan="2" name="gestion_tarea" string="Datos de tarea">
+        <field name="x_migrate_ftp" invisible="True"/>
+        <field name="ftp_files_imported" invisible="True"/>
+        <field name="project_id" force_save="1" readonly="1" required="1" widget="project" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+        <field name="payment_type_project_id" invisible="project_id not in [4]" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]"/>
+        <field name="x_studio_fecha_planificada" string="Fecha Plan/Ejecutada" force_save="1" readonly="stage_id in [4, 5] and uid != 6" invisible="False"/>
+        <field name="x_studio_duracion_act_min" force_save="1" readonly="True"/>
+        <!--<field name="x_studio_dias_post_instalacion" string="Dias post instalacion" force_save="True" readonly="1" invisible="project_id in [2, 1, 4]"/>-->
+        <field name="x_dias_post_ins" string="Dias post instalacion" force_save="True" readonly="1" invisible="project_id in [2, 1, 4]"/>
+        <!--<field name="x_studio_conteo_vt" invisible="project_id in [2, 1, 4]" force_save="1" readonly="True"/>-->
+        <field name="x_conteo_vt" invisible="project_id in [2, 1, 4]" force_save="1" readonly="True"/>
+        <field name="x_studio_horario_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="0" readonly="False" invisible="0"/>
+        <field name="x_studio_selec_import_instal" string="Selec. import Instal" invisible="project_id in [3, 4]" force_save="1" readonly="True"/>
+        <field name="x_studio_zona_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" force_save="1" readonly="True" invisible="project_id in [4]"/>
+        <field name="x_studio_v_verificado" invisible="project_id != 1 or uid != 6 and uid != 10 and uid != 11 and uid != 21"/>
+        <field name="x_studio_observaciones_de_planificacion" string="Observ. de planificación"/>
+        <field name="x_studio_observacion_tecnica"/>
+        <field name="x_studio_obser_reprogramacin" invisible="project_id in [4]"/>
+        <field name="x_studio_n_para_visita" string="N° para visita" invisible="True" readonly="True"/>
+        <field name="x_studio_telf_para_esta_visita" invisible="False"/>
+        <field name="x_studio_comentario_telf"/>
+        <field name="x_studio_domicilio_traslado" string="Domicilio Traslado" invisible="project_id != 3" force_save="1" readonly="True"/>
+        <field name="x_studio_ubicacion_de_traslado" invisible="project_id != 3" readonly="True"/>
+        <div class="o_td_label" name="studio_div_e0f0a1">
+          <label for="payment_type_project_id" string="Trabajo en Campo" invisible="project_id in [1,2,3]"/>
+          <label for="payment_type_project_id" string="Tipo de Pago Ins" invisible="project_id in [2,3,4]"/>
+          <label for="payment_type_project_id" string="Tipo de Pago Vt" invisible="project_id in [1,2,4]"/>
+          <label for="payment_type_project_id" string="Tipo de Pago Retiro" invisible="project_id in [1,3,4]"/>
+        </div>
+        <field name="payment_type_project_id" nolabel="1" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]" force_save="1" readonly="True"/>
+        <field name="payment_type_price" widget="monetary" options="{&quot;currency_field&quot;:&quot;x_currency_id&quot;}" invisible="uid != 6 and uid != 15 and uid != 10 and uid != 7 and uid != 19 and uid != 23" force_save="1" readonly="state == &quot;1_done&quot; and uid != 6"/>
+        <!--<field name="x_studio_tipo_de_averia" string="Tipo de Pago" force_save="0" readonly="False" invisible="project_id in [1, 4]"/>-->
+        <field name="x_studio_persona_gestor" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" help="Este campo es para el gestor de esta actividad" domain="['|', ('department_id', 'in', [27, 20, 13]), ('id', 'in', [1159, 269])]" force_save="1" readonly="False" invisible="project_id == 1"/>
+        <field name="x_studio_imagenes_completadas_por_tecnico" force_save="0" readonly="False" invisible="project_id == 1"/>
+        <field name="x_studio_imagenes_cargadas_al_ftp" force_save="0" readonly="False" invisible="project_id in [4]"/>
+        <field name="x_nueva_red" invisible="True"/>
+        <field name="x_studio_reprogramado" string="Estado de cliente" invisible="project_id in [3, 4]"/>
+      </group>
+      <div class="mt-2" invisible="project_id in [4]" name="studio_div_a73064">
+        <label for="x_studio_fecha_1" class="fw-bold"/>
+        <field name="x_studio_fecha_1" placeholder="Fecha 1..."/>
+      </div>
+      <div class="mt-2" invisible="project_id in [4]" name="studio_div_3fbab7">
+        <label for="x_studio_motivo_1_1" class="fw-bold"/>
+        <field name="x_studio_motivo_1_1" placeholder="Motivo 1..." options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+      </div>
+      <div class="mt-2" invisible="x_studio_motivo_1_1 == False" name="studio_div_b168fe">
+        <label for="x_studio_fecha_2" class="fw-bold"/>
+        <field name="x_studio_fecha_2" placeholder="Fecha 2..."/>
+      </div>
+      <div class="mt-2" invisible="x_studio_motivo_1_1 == False" name="studio_div_997ec9">
+        <label for="x_studio_motivo_2" class="fw-bold"/>
+        <field name="x_studio_motivo_2" placeholder="Motivo 2..." options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+      </div>
+      <div class="mt-2" invisible="x_studio_motivo_2 == False" name="studio_div_65bb45">
+        <label for="x_studio_fecha_3" class="fw-bold"/>
+        <field name="x_studio_fecha_3" placeholder="Fecha 3..."/>
+      </div>
+      <div class="mt-2" invisible="x_studio_motivo_2 == False" name="studio_div_9a87ed">
+        <label for="x_studio_motivo_3" class="fw-bold"/>
+        <field name="x_studio_motivo_3" placeholder="Motivo 3..." options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+      </div>
+      <group colspan="2" class="mt-2" name="studio_group_65b156">
+        <field name="x_studio_dni_referido" string="DNI Referente" force_save="1" readonly="True" invisible="project_id in [2, 3, 4]"/>
+        <field name="x_studio_promocion_venta" string="Promocion venta" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" invisible="project_id in [2, 3, 4]" force_save="1" readonly="True"/>
+        <field class="alert alert-warning fs-5 fw-bolder" role="alert" name="x_studio_hora_inicio" options="{&quot;rounding&quot;:1}" force_save="1" readonly="context.get(&quot;uid&quot;) not in [6, 10,15,26,27, 12, 20]"/>
+        <field class="alert alert-success fs-5 fw-bolder" role="alert" name="x_studio_hora_final_de_instalacion" invisible="project_id in [3,4]" options="{&quot;rounding&quot;:1}"/>
+        <field class="alert alert-success fs-5 fw-bolder" role="status" name="x_studio_hora_final_de_instalacion" invisible="project_id not in [3,4]" required="payment_type_project_id == 'MASIVA'" options="{&quot;rounding&quot;:1}"/>
+        <field name="x_studio_seg_programacion" widget="many2many_tags" options="{'no_create': true, 'color_field': 'color', 'no_edit_color': true}" domain="[&quot;&amp;&quot;, &quot;&amp;&quot;, &quot;&amp;&quot;, (&quot;name&quot;, &quot;not ilike&quot;, &quot;1&quot;), (&quot;name&quot;, &quot;not ilike&quot;, &quot;2&quot;), (&quot;name&quot;, &quot;not ilike&quot;, &quot;3&quot;), (&quot;name&quot;, &quot;not ilike&quot;, &quot;4&quot;)]" invisible="True"/>
+        <field name="x_studio_reporte_de_seguimiento" string="Reporte de seguimiento" invisible="True"/>
+        <field name="x_studio_observ_gestion" invisible="project_id in [2, 1, 4]"/>
+        <field name="x_studio_observ_inge" string="Observ. Inge" invisible="True"/>
+        <field name="x_studio_fecha_suspension" string="Fecha suspension" force_save="True" readonly="1" invisible="project_id in [3, 1, 4]"/>
+        <field name="x_studio_close_reason_id" force_save="True" readonly="1" string="Razón de cierre" invisible="project_id in [3, 1, 4]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+      </group>
+      <!--<group colspan="2" class="mt-2" string="Datos de operaciones">-->
+      <!--<field name="x_studio_seg_oper" string="SEG. OPER:" force_save="True" readonly="1"/>-->
+      <separator string="Datos de operaciones"/>
+      <div class="mt-2" name="studio_div_0b312d">
+        <label for="tag_ids" class="fw-bold"/>
+        <field name="tag_ids" domain="[(&quot;x_studio_area&quot;, &quot;=&quot;, &quot;OPERACIONES&quot;)]" options="{&quot;color_field&quot;: &quot;color&quot;, &quot;no_create_edit&quot;: true, &quot;no_create&quot;: true}" widget="many2many_tags"/>
+      </div>
+      <div class="mt-2" name="studio_div_862e00">
+        <label for="x_adicional" class="fw-bold" invisible="project_id in [4]"/>
+        <field name="x_adicional" invisible="project_id in [4]"/>
+      </div>
+      <div class="mt-2" name="studio_div_1a5261">
+        <label for="x_studio_empleado_id" class="fw-bold"/>
+        <field name="x_studio_empleado_id" widget="many2one_avatar_employee" nolabel="1" options="{'no_create': True, 'no_create_edit': True}" domain="[]" force_save="1" readonly="stage_id == 4" placeholder="Tecnico Asignado..."/>
+      </div>
+      <!--<div class="mt-2" name="studio_div_9283d9">-->
+      <!--  <label for="x_jefe_cuadrilla_new" class="fw-bold" invisible="x_studio_empleado_id == False"/>-->
+      <!--  <field name="x_jefe_cuadrilla_new" nolabel="1" force_save="1" invisible="1"/>-->
+      <!--</div>-->
+      <!--<field name="x_studio_empleado_id" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[]" force_save="1" readonly="stage_id == 4"/>-->
+      <separator string="LOG TECNICO" invisible="project_id in [1, 4] or stage_id == 4"/>
+      <!--<field name="x_studio_log_tecnico" nolabel="1" readonly="1" invisible="project_id == 1 or stage_id == 4">-->
+      <!--  <tree editable="bottom">-->
+      <!--    <field name="create_date" string="Creado el"/>-->
+      <!--    <field name="x_fecha_plani"/>-->
+      <!--    <field name="x_studio_tecnico_noc_id"/>-->
+      <!--  </tree>-->
+      <!--</field>-->
+      <div id="accordionExample" class="accordion mb-3 mt-3" colspan="2" invisible="project_id in [1, 4]" name="studio_div_8724f6">
+        <!-- Elemento 1 -->
+        <div class="accordion-item" name="studio_div_4857e2">
+          <h2 class="accordion-header" id="headingOne">
+            <button class="accordion-button" type="button" name="accordion" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            Información General
+                        </button>
+          </h2>
+          <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" name="studio_div_389880">
+            <div class="accordion-body" name="studio_div_c8b0f9">
+              <field name="x_studio_log_tecnico" nolabel="1" readonly="1" invisible="project_id == 1 or stage_id == 4">
+                <tree editable="bottom">
+                  <field name="create_date" string="Creado el"/>
+                  <field name="x_fecha_plani"/>
+                  <field name="x_studio_tecnico_noc_id"/>
+                  <field name="x_adic"/>
+                </tree>
+              </field>
+            </div>
+          </div>
+        </div>
+      </div>
+      <group colspan="2" class="mt-2" name="studio_group_c45773">
+        <field name="x_studio_tec_id" string="tec id" invisible="1"/>
+        <field name="x_studio_observ_operac_1" invisible="project_id not in [4]"/>
+        <field name="x_studio_observaciones_operacionales" string="Observ. Operac."/>
+        <field name="x_studio_previo_tec" force_save="0" readonly="False" options="{&quot;no_create_edit&quot;:true,&quot;no_quick_create&quot;:true,&quot;no_create&quot;:true}"/>
+        <field name="x_studio_tec_apoyo" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true}" invisible="(project_id == 2) or (project_id == 1)"/>
+        <field name="location" widget="url" invisible="project_id not in [4]"/>
+        <field name="x_studio_zona_id" invisible="project_id not in [4]" readonly="False" options="{&quot;no_create&quot;:true}"/>
+        <field name="x_studio_distrito" invisible="project_id not in [4]" readonly="False" options="{&quot;no_create&quot;:true}"/>
+        <field name="x_studio_pendientes" invisible="project_id in [4]"/>
+        <field name="x_studio_noc_realizo" string="NOC validó conforme" force_save="1" readonly="False"/>
+      </group>
+      <separator string="Datos de Validaciones"/>
+      <group name="studio_group_9b4d69">
+        <field name="ope_validator" options="{&quot;no_quick_create&quot;:true,&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="high_validator" force_save="0" readonly="False" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_supervisor_tecnigestor" widget="many2many_tags_avatar" domain="[('department_id', '=', 27)]" options="{&quot;no_quick_create&quot;:true,&quot;no_create_edit&quot;:true,&quot;no_create&quot;:true}">
+          <tree string="Employees" expand="context.get('expand', False)" multi_edit="1" sample="1" js_class="hr_employee_list">
+            <header>
+              <button name="1263" string="Launch Plan" type="action" groups="hr.group_hr_user"/>
+            </header>
+            <field name="name" readonly="1"/>
+            <field name="work_phone" class="o_force_ltr" readonly="1" optional="show"/>
+            <field name="work_email" column_invisible="1"/>
+            <field name="activity_ids" widget="list_activity" optional="show" column_invisible="1"/>
+            <field name="activity_user_id" optional="hide" string="Activity by" widget="many2one_avatar_user" column_invisible="1"/>
+            <field name="activity_date_deadline" widget="remaining_days" options="{'allow_order': '1'}" optional="show" column_invisible="1"/>
+            <field name="company_id" groups="base.group_multi_company" readonly="1" optional="show"/>
+            <field name="department_id"/>
+            <field name="job_id" column_invisible="1"/>
+            <field name="parent_id" widget="many2one_avatar_user" optional="show"/>
+            <field name="address_id" column_invisible="True"/>
+            <field name="company_id" column_invisible="True"/>
+            <field name="work_location_id" optional="hide"/>
+            <field name="coach_id" column_invisible="True"/>
+            <field name="active" column_invisible="True"/>
+            <field name="category_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide" column_invisible="1"/>
+            <field name="country_id" optional="hide" column_invisible="1"/>
+          </tree>
+        </field>
+      </group>
+      <!--</group>-->
+      <group name="gestion_validaciones" colspan="2" class="mt-2" string="Datos de validaciones" invisible="project_id in [4]">
+        <field name="x_studio_estado_de_validaciones" string="Estado de Validaciones" widget="many2many_tags" options="{&quot;no_create&quot;: true, &quot;color_field&quot;: &quot;color&quot;}" domain="[(&quot;name&quot;, &quot;ilike&quot;, &quot;VALIDA&quot;)]" force_save="1"/>
+        <field name="x_studio_validador_noc" widget="many2one_avatar_employee" string="Validador Ope." invisible="project_id == 2 or project_id == 3" domain="[(&quot;department_id&quot;, &quot;=&quot;, 27)]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_pendiente_alta" string="Pendiente Alta" invisible="project_id == 3"/>
+        <field name="x_studio_obs_de_alta" string="Obs. de ALTA" invisible="project_id == 3"/>
+        <field name="x_studio_validador_altas" widget="many2one_avatar_employee" invisible="project_id == 2 or project_id == 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[&quot;|&quot;, &quot;|&quot;, (&quot;department_id&quot;, &quot;=&quot;, 27), (&quot;id&quot;, &quot;=&quot;, 1159), (&quot;id&quot;, &quot;=&quot;, 269)]"/>
+      </group>
+      <div class="mt-2" invisible="x_studio_empleado_id == False" colspan="1" name="studio_div_c7491a">
+        <field name="x_studio_empleado_id" nolabel="1" options="{&quot;no_create&quot;: true, &quot;no_open&quot;: true}" force_save="True" readonly="1" invisible="False"/>
+        <div class="badge rounded-pill fw-bold text-bg-dark fa fa-user" name="studio_div_072f52">
+                JEFE CUADRILLA
+            </div>
+      </div>
+      <div class="mt-2" colspan="1" invisible="not x_studio_empleado_id" name="studio_div_3cd299">
+        <label for="x_encargado_solucion_tec" string="Encargado Actividad" class="fw-bold"/>
+        <field name="x_encargado_solucion_tec" widget="many2one_avatar_employee" domain="[('parent_id', '=', x_studio_empleado_id)]" options="{'no_create': True, 'no_create_edit': True}" force_save="1" placeholder="Encargado Sol Tec..."/>
+      </div>
+      <group colspan="2" class="mt-3" invisible="project_id in [4]" name="studio_group_da6333">
+        <field name="x_studio_nro_contrato" string="Nro Contrato" options="{&quot;no_create&quot;:true}" domain="[&quot;&amp;&quot;,[&quot;x_studio_estado_contrato&quot;,&quot;=&quot;,&quot;Asignado&quot;],[&quot;x_name&quot;,&quot;not ilike&quot;,&quot;DUO&quot;]]" invisible="project_id == 3" required="False"/>
+        <field name="x_studio_nro_contrato_whatsapp"/>
+        <field name="x_studio_duo_contrato" string="Nro. Orden Inst." domain="[&quot;&amp;&quot;,[&quot;x_name&quot;,&quot;ilike&quot;,&quot;DUO&quot;],[&quot;x_studio_estado_contrato&quot;,&quot;=&quot;,&quot;Asignado&quot;]]" invisible="project_id == 2" options="{&quot;no_create&quot;:true}"/>
+        <field name="x_studio_n_contrato_reg_tcnico"/>
+      </group>
+    </group>
+    <group name="2parte">
+      <group name="gestion_cliente" string="Datos de Cliente" colspan="2" invisible="project_id in [4]">
+        <field name="x_studio_tipo_de_documento" string="Tipo de documento" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="1" readonly="True"/>
+        <field name="x_studio_nro_de_documento" force_save="1" readonly="True"/>
+        <field name="partner_id" context="{'res_partner_search_mode': 'customer'}" force_save="1" invisible="False" readonly="uid != 6" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:false}"/>
+        <!--<field name="sale_line_id" optional="hide" options="{&quot;no_create&quot;: True}" context="{'create': False, 'edit': False, 'delete': False, 'with_price_unit': True}" placeholder="Non-billable" groups="sales_team.group_sale_salesman" invisible="not allow_billable"/>-->
+        <field name="x_partner_phone" force_save="True" readonly="1"/>
+        <field name="partner_mobile" force_save="True" readonly="1"/>
+        <field name="x_studio_subs_order" string="subs order" force_save="0" readonly="False"/>
+        <field name="x_studio_subs_count" invisible="not allow_billable or project_id not in [1] or not partner_id" force_save="1" readonly="uid == 23"/>
+        <field name="x_studio_adeudo_total_cliente" string="Adeudo Total Cliente" groups="base.group_user" invisible="(project_id == 1) or (project_id == 2) or (project_id == 3) or (project_id == 4)"/>
+        <field name="x_partner_email" force_save="True" readonly="1" invisible="False"/>
+        <field name="x_studio_comision" string="Comision" invisible="1"/>
+        <field name="x_studio_partner_shipping_id" studio-view-group-names="Internal User" studio-view-group-ids="1" force_save="1" options="{&quot;no_create&quot;:true}" readonly="uid != 6 "/>
+        <field name="x_studio_nombre_direccion" string="Nombre Direccion" force_save="1" readonly="True"/>
+        <field name="x_studio_tipo_de_cliente" string="Tipo de cliente" invisible="True"/>
+        <field name="x_studio_cambio_de_titularidad" invisible="True" force_save="0" readonly="False"/>
+        <field name="x_studio_referencia" string="Referencia" invisible="project_id != 1"/>
+        <field name="x_studio_distrito" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="1" readonly="True"/>
+        <field name="x_studio_ciudad" string="Provincia" force_save="1" readonly="True" invisible="(project_id == 1) or (project_id == 2) or (project_id == 3) or (project_id == 4)"/>
+        <field name="x_studio_googlemaps" widget="url" string="Ubicación" force_save="1" readonly="True"/>
+        <field name="x_studio_empleado_baja" widget="many2one_avatar_employee" string="Empleado baja" invisible="False" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+        <field name="x_studio_project_task_id" string="Tarea de Instalación" options="{&quot;no_create&quot;:true}" force_save="1" invisible="project_id == 1" readonly="True"/>
+        <field name="x_studio_inst_observacion" invisible="1"/>
+        <field name="x_reporte_tecnico" readonly="True" invisible="project_id == 3"/>
+        <field name="x_currency_id" invisible="1"/>
+      </group>
+      <label for="x_studio_cambio_de_titularidad" string="Cambio de titularidad" invisible="project_id == 3"/>
+      <field name="x_studio_cambio_de_titularidad" invisible="(project_id == 2) or (project_id == 3)"/>
+      <group name="gestion_venta" string="Datos de la venta" colspan="2" invisible="project_id in [2, 3, 4]">
+        <field name="x_studio_related_field_vHvqQ" string="Canal de pedido" invisible="(project_id == 1) or (project_id == 2) or (project_id == 3)"/>
+        <field name="x_studio_vendedor_id" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="True" readonly="True" invisible="(project_id == 2) or (project_id == 3)"/>
+        <field name="x_studio_servicio_solicitado_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="1" readonly="True" invisible="project_id == 3"/>
+        <field name="x_studio_vendedor_tvbox" widget="many2one_avatar_employee" string="Vendedor TV" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" force_save="1" invisible="(project_id == 3)"/>
+        <field name="x_studio_comision_tv" string="Comision TV" invisible="True" force_save="0" readonly="False"/>
+        <field name="x_ser_adic_sol_id" string="TV Solicitado" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" readonly="True" invisible="project_id == 3" force_save="1"/>
+        <field name="x_studio_servicio" string="Servicio" invisible="project_id == 2 or project_id == 3" force_save="0" readonly="False"/>
+        <field name="x_promo_wifi" readonly="stage_id == 4 or stage_id == 5" invisible="(project_id == 1)"/>
+        <field name="x_studio_tipo_de_contrato"/>
+      </group>
+      <group string="Datos de Suscripción" name="gestion_suscripcion" colspan="2" invisible="project_id in [4]">
+        <group colspan="2" name="studio_group_287f48">
+          <field name="x_studio_subscription_id" colspan="2" force_save="1" options="{&quot;no_create&quot;:true}" context="{'form_view_ref': 'studio_customization.odoo_studio_sale_sub_737f8288-a54d-4a39-b0fa-cae814d4da6b'}" readonly="uid != 6"/>
+        </group>
+        <div class="mt-2" name="studio_div_3b22d3">
+          <label for="x_studio_estado_sus" class="fw-bold"/>
+          <field name="x_studio_estado_sus" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" widget="badge" decoration-success="x_studio_estado_sus == 2" decoration-info="x_studio_estado_sus == 1" decoration-danger="x_studio_estado_sus == 3" decoration-warning="x_studio_estado_sus == 4"/>
+        </div>
+        <div class="mt-2" name="studio_div_d4ccf6">
+          <label for="x_code_sus" class="fw-bold"/>
+          <field name="x_code_sus"/>
+        </div>
+        <group class="mt-2" colspan="2" name="studio_group_254768" invisible="False">
+          <field name="x_studio_motivo_de_bajasuspension" string="Motivo de baja/suspension" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" invisible="False"/>
+          <field name="x_studio_fch_ult_suspension" invisible="project_id not in [2]"/>
+          <field name="x_studio_ult_activacion" string="ult activacion" invisible="True"/>
+          <field name="date_deco_shutdown" string="Fecha Últ. Suspensión TV" invisible="True"/>
+        </group>
+      </group>
+      <group name="gestion_ticket" string="Ticket" colspan="2" invisible="project_id in [2, 1, 4]">
+        <field name="x_studio_helpdesk_ticket_id" options="{&quot;no_create&quot;:true}" force_save="1" readonly="True"/>
+        <field name="x_studio_tipo_de_ticket" string="Tipo de Ticket" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_nro_de_ticket_vt" string="nro de ticket vt" force_save="1" readonly="True"/>
+        <field name="x_studio_nro_de_ticket" string="Nro de Ticket" force_save="1" readonly="True"/>
+        <field name="x_studio_create_date" string="create date" force_save="True" readonly="1"/>
+        <field name="x_studio_diagnostico_aacc_id" force_save="True" readonly="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_observacion_aacc" string="observacion aacc" force_save="True" readonly="1"/>
+      </group>
+      <group name="gestion_noc" string="Gestión NOC" colspan="2" invisible="project_id in [2, 1, 4]">
+        <field name="x_studio_tecnico_noc_visita_id" widget="many2one_avatar_employee" string="Tecnico NOC" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_clientes_afectados" invisible="x_clientes_afectados == 0"/>
+        <field name="x_studio_hora_de_caida" invisible="not x_studio_hora_de_caida"/>
+        <field name="x_studio_diagnostico_noc_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_solucion_noc_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+        <field name="x_studio_observacion_noc" string="Observacion NOC"/>
+      </group>
+      <group name="gestion_cancelacion" class="mt-2" colspan="2" string="Datos de cancelación" invisible="not x_studio_motivo_cancelacion_id">
+        <field name="x_studio_motivo_cancelacion_id" string="motivo cancelacion" force_save="True" readonly="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_usuario_cancelacion" widget="many2one_avatar_employee" string="usuario cancelacion" force_save="True" readonly="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+        <field name="x_studio_observacion_cancelacion" string="observacion cancelacion" force_save="True" readonly="1"/>
+        <field name="x_studio_fecha_cancelacion" string="fecha cancelacion" force_save="True" readonly="1"/>
+      </group>
+    </group>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='project_id']" position="attributes">
+    <attribute name="invisible">True</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='user_ids']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][1]/field[@name='user_ids']" position="after">
+    <field name="x_studio_agrup_retiros"/>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][2]/field[@name='partner_id']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//field[@name='sale_order_id']" position="attributes">
+    <attribute name="force_save">1</attribute>
+    <attribute name="invisible">uid != 6</attribute>
+    <attribute name="options">{"no_create":true}</attribute>
+    <attribute name="readonly">uid != 6</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][2]/field[@name='sale_line_id'][2]" position="attributes">
+    <attribute name="invisible">not allow_billable or project_id in [2, 3, 1, 4] or not partner_id</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]/group[not(@name)][2]/div[1]/field[@name='date_deadline']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/group[1]" position="after">
+    <group name="studio_group_7d6_1jfooelnc">
+      <group name="studio_group_7d6_left" string="App" invisible="uid != 6 and uid != 10 and uid != 7 and uid != 27 and uid != 15 and uid != 23 and uid != 29">
+        <field name="x_studio_paso_1"/>
+        <field name="x_studio_paso_2"/>
+        <field name="x_studio_paso_3"/>
+        <field name="x_studio_latitud" invisible="False" options="{&quot;digits&quot;:[16,8],&quot;enable_formatting&quot;:false}" required="stage_id == 2"/>
+        <field name="x_studio_longitud" invisible="False" options="{&quot;digits&quot;:[16,8],&quot;enable_formatting&quot;:false}" required="False"/>
+      </group>
+    </group>
+  </xpath>
+  <xpath expr="//page[@name='description_page']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//page[@name='sub_tasks_page']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//page[@name='extra_info']" position="attributes">
+    <attribute name="invisible">1</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/notebook[1]/page[not(@name)][1]" position="attributes">
+    <attribute name="invisible">project_id in [3, 2, 4, 1] or ( not x_studio_estado_de_validaciones and x_studio_fecha_planificada &gt;= "2025-08-20" )</attribute>
+  </xpath>
+  <xpath expr="//form[1]/sheet[1]/notebook[1]" position="inside">
+    <page string="Noc" name="studio_page_5VmLU" invisible="project_id in [3, 2, 4]">
+      <group name="studio_group_5VmLU" col="3">
+        <group name="studio_group_5VmLU_left" string="Datos de NOC" colspan="1">
+          <field name="x_studio_tecnico_noc_id" widget="many2one_avatar_employee" string="Tecnico NOC." options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[(&quot;department_id&quot;, &quot;=&quot;, 3)]"/>
+          <field name="x_studio_pon_log_id" domain="[[&quot;x_studio_estado_pon_log&quot;,&quot;=&quot;,&quot;Disponible&quot;]]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" readonly="stage_id == 5 and uid != 6" force_save="1"/>
+          <field name="x_studio_service_port" string="Service Port" force_save="True" readonly="1"/>
+          <field name="x_studio_troncal"/>
+          <field name="x_studio_odf_1" string="odf" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_nro_hilo"/>
+          <field name="x_studio_zona_noc_id" string="Zona NOC" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_name_mk" string="Name MK" force_save="1" readonly="True"/>
+          <field name="x_studio_port" string="Port" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" invisible="1"/>
+          <field name="x_studio_vlan_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_router_id" force_save="True" readonly="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_comandos_olt" string="Vlan Usuario" options="{&quot;line_breaks&quot;:false}"/>
+          <field name="x_studio_plan_id" string="Plan Vigente" force_save="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" readonly="uid != 6"/>
+          <field name="x_cat_client" widget="label_selection" readonly="1" options="{            'classes': {                'GOLD': 'warning rounded fa fa-star',                'SILVER - TOP': 'primary rounded fa fa-trophy',                'SILVER - MEDIO': 'info rounded fa fa-certificate',                'SILVER - BASE': 'light rounded fa fa-check-circle',                'SILVER': 'secondary rounded fa fa-silver',                'BRONZE - TOP': 'danger rounded fa fa-trophy',                'BRONZE - MEDIO': 'secondary rounded fa fa-medal',                'BRONZE - BASE': 'dark rounded fa fa-medal',                'BRONZE': 'secondary rounded fa fa-cogs'            }        }"/>
+          <field name="x_studio_servicio_instalado_id" domain="[&quot;&amp;&quot;,[&quot;type&quot;,&quot;=&quot;,&quot;service&quot;],[&quot;categ_id&quot;,&quot;=&quot;,5]]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" invisible="1"/>
+          <field name="x_studio_cambio_de_plan" invisible="1"/>
+          <label for="x_studio_caja"/>
+          <div name="studio_div_293e34">
+            <field name="x_studio_caja" class="oe_inline"/>
+            <span>
+              <div class="ms-3 badge rounded-pill fw-bold text-bg-secondary oe_inline" invisible="not x_studio_caja or not noc_box_id" name="studio_div_121d6d">
+                <field name="noc_box_id" readonly="1" options="{'no_open': True, 'no_create_edit': True}"/>
+              </div>
+            </span>
+          </div>
+          <!--<field name="x_studio_puerto_de_caja"/>-->
+          <label for="x_studio_puerto_de_caja"/>
+          <div name="studio_div_d2c95f">
+            <field name="x_studio_puerto_de_caja" class="oe_inline"/>
+            <span>
+              <div class="ms-3 badge rounded-pill fw-bold text-bg-secondary oe_inline" invisible="not x_studio_puerto_de_caja or not noc_box_port_id" name="studio_div_71ed93">
+                <field name="noc_box_port_id" readonly="1" options="{'no_open': True, 'no_create_edit': True}"/>
+              </div>
+            </span>
+          </div>
+          <field name="x_studio_mac_noc"/>
+          <label for="x_studio_producto_adicional_id" class="fw-bold">Producto adicional:</label>
+          <div name="studio_div_54f8cc">
+            <field name="x_studio_producto_adicional_id" options="{'no_open': true, 'no_create': true}" class="oe_inline me-4"/>
+            <span>
+              <field name="state_deco" widget="badge" options="{'no_create': true, 'no_open': true}" decoration-success="state_deco=='active'" decoration-danger="state_deco=='inactive'" class="oe_inline"/>
+            </span>
+          </div>
+          <field name="x_studio_mac_tv" string="MAC TV"/>
+          <field name="x_studio_mac_tv_2" string="MAC TV 2"/>
+          <field name="x_studio_mac_tv_3" string="MAC TV 3"/>
+          <field name="x_studio_mac_tv_4" string="MAC TV 4"/>
+        </group>
+        <group name="studio_group_yJfkH" colspan="2">
+          <group name="studio_group_cJcqw_left" string="COMANDOS OLT" colspan="2">
+            <field name="x_studio_marca_olt" string="Marca OLT" options="{&quot;no_create&quot;:true}"/>
+            <field name="x_studio_pack3" string="Activaciones" force_save="True" readonly="1"/>
+            <field name="x_studio_cambio_de_plan_1" string="Cambio de Plan" force_save="True" readonly="1"/>
+            <field name="x_studio_estado_de_olt" string="Estado de OLT" force_save="True" readonly="1"/>
+            <field name="x_studio_baja" string="Baja" force_save="True" readonly="1"/>
+            <field name="x_studio_add" force_save="True" readonly="1" invisible="1"/>
+            <field name="x_studio_mb" force_save="True" readonly="1" invisible="1"/>
+            <field name="x_studio_mb_down" string="mb down" force_save="True" readonly="1" invisible="1"/>
+            <field name="x_studio_mb_up" string="mb up" force_save="True" readonly="1"/>
+          </group>
+          <group name="studio_group_cJcqw_right" string="COMANDOS MKT" colspan="2">
+            <field name="x_studio_add_mk" string="Agregar MK" force_save="True" readonly="1"/>
+            <!--<field name="x_studio_state_mk" string="Estado de MK" force_save="True" readonly="1"/>-->
+            <field name="x_studio_remove_perfil_mk" string="Quitar perfil MK" force_save="True" readonly="1"/>
+          </group>
+        </group>
+      </group>
+      <separator string="MODIFICACIONES"/>
+      <field name="x_studio_log_instalacion_ids">
+        <tree>
+          <field name="create_date"/>
+          <field name="x_studio_project_task_id" column_invisible="1"/>
+          <field name="x_studio_tecnico_noc_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_pon_log_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_service_port" string="service port"/>
+          <field name="x_studio_vlan_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_vlan_usuario" string="Vlan usuario"/>
+          <field name="x_studio_mac_noc" string="Mac Noc"/>
+          <field name="x_studio_router_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_name_mk" string="name mk"/>
+          <field name="x_studio_sequence" widget="handle"/>
+          <field name="x_studio_equipo_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_name" column_invisible="1"/>
+        </tree>
+        <form>
+          <header/>
+          <sheet string="Log de instalacion" name="studio_sheet_0efc5e">
+            <widget name="web_ribbon" text="Archivado" bg_color="bg-danger" invisible="x_active == True"/>
+            <field name="x_active" invisible="1"/>
+            <div class="oe_title" name="studio_div_f390a0">
+              <h1>
+                <field name="x_name" required="1" placeholder="Name..."/>
+              </h1>
+            </div>
+            <group name="studio_group_55a6e0">
+              <group name="studio_group_55a6e0_left">
+                <field name="x_studio_project_task_id" options="{&quot;no_create&quot;:true}"/>
+                <field name="x_studio_pon_log_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" force_save="True" readonly="1"/>
+                <field name="x_studio_service_port"/>
+                <field name="x_studio_vlan_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="True" readonly="1"/>
+                <field name="x_studio_router_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+                <field name="x_studio_name_mk"/>
+                <field name="x_studio_mac_noc"/>
+                <field name="x_studio_equipo_id" options="{&quot;no_create&quot;:true}"/>
+              </group>
+              <group name="studio_group_55a6e0_right">
+                <field name="x_studio_macs_de_tv"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+    </page>
+    <page string="Datos técnicos" name="studio_page_yFwct" invisible="project_id in [2]">
+      <group name="studio_group_5VmLU_right" invisible="project_id not in [1]">
+        <group string="Comercial" name="studio_group_a6e676">
+          <!--<field name="x_studio_integer_field_6OCzw" string="Cero" attrs="{}" invisible="1"/>-->
+          <group colspan="2" name="studio_group_8b05ce">
+            <label for="x_studio_plan_id" string="Plan Vigente"/>
+            <div name="studio_div_0e0f18">
+              <field name="x_studio_plan_id" class="oe_inline" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="True" readonly="1"/>
+              <span>
+                <div class="ms-5 badge rounded-pill fw-bold text-bg-primary oe_inline fa fa-wifi" invisible="x_studio_servicio != 'INTERNET'" name="studio_div_7d994b">
+                        INTERNET
+                    </div>
+                <div class="ms-5 badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-tv" invisible="x_studio_servicio != 'DUO'" name="studio_div_69842a">
+                        DUO
+                    </div>
+              </span>
+            </div>
+            <label for="x_studio_observaciones_de_planificacion" string="Obs. Planificación" invisible="not x_studio_observaciones_de_planificacion"/>
+            <!--<div class="alert alert-info p-2 border border-dark me-3" invisible="not x_studio_observaciones_de_planificacion" name="studio_div_11857b">-->
+            <!--  <field name="x_studio_observaciones_de_planificacion"/>-->
+            <!--</div>-->
+            <div class="alert alert-info p-2 border border-dark me-3" role="status" invisible="not x_studio_observaciones_de_planificacion" name="studio_div_11857b">
+              <field name="x_studio_observaciones_de_planificacion"/>
+            </div>
+            <!--<label for="x_studio_mac_noc" string="Mac Activación" invisible="project_id in [4]"/>-->
+            <!--<div class="alert alert-primary p-2 border border-dark mt-2" invisible="project_id in [4]">-->
+            <!--<field name="x_studio_mac_noc" class="oe_inline"/>-->
+            <!--    <span>-->
+            <!--        <div class="badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-microchip" invisible="not x_studio_mac_noc">-->
+            <!--        <field name="x_dato_ont" force_save="True" readonly="True"/>-->
+            <!--         <div class="ms-5 badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-wifi" invisible="x_dato_ont not in ['2B ROUTER - HUAWEI HG8145X6', '2B ROUTER - HUAWEI OPTIXSTAR EG8145X6','2B ROUTER - HUAWEI OPTIXSTAR HG8145X6']">-->
+            <!--            WIFI 6-->
+            <!--        </div>-->
+            <!--        </div>-->
+            <!--    </span>-->
+            <!--</div>-->
+            <label for="x_studio_mac_noc" string="Mac Activación" invisible="project_id in [4] or not x_studio_mac_noc"/>
+            <div class="alert alert-primary p-2 border border-dark mt-2" role="status" invisible="project_id in [4] or not x_studio_mac_noc" name="studio_div_0e74d3">
+              <field name="x_studio_mac_noc" class="oe_inline ms-1" force_save="True" readonly="1"/>
+            </div>
+          </group>
+          <group colspan="2" class="mt-2" name="studio_group_541022">
+            <field class="badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-microchip" invisible="not x_dato_ont" string="Dato ONT" name="x_dato_ont" force_save="True" readonly="True"/>
+            <field name="x_studio_tiene_repetidor"/>
+          </group>
+          <div class="mt-2" name="studio_div_4bdbb9">
+            <label for="x_studio_1marca_del_repetidor_instalado" string="Marca Repetidor" class="fw-bold"/>
+            <field name="x_studio_1marca_del_repetidor_instalado" force_save="True" readonly="x_studio_tiene_repetidor == False" required="x_studio_tiene_repetidor == True"/>
+          </div>
+          <div class="mt-2" name="studio_div_8ca9b3">
+            <label for="x_studio_2numeracin_del_repetidor_instalado" string="Númeracion Repetidor" class="fw-bold"/>
+            <field name="x_studio_2numeracin_del_repetidor_instalado" string="2.Numeración del repetidor Instalado" force_save="True" readonly="x_studio_tiene_repetidor == False" required="x_studio_tiene_repetidor == True"/>
+          </div>
+          <div class="mt-2" name="studio_div_1eb092">
+            <label for="x_studio_tiene_switch" string="Tiene Switch" class="fw-bold"/>
+            <field name="x_studio_tiene_switch"/>
+          </div>
+          <div class="mt-2" name="studio_div_8ca54e">
+            <label for="x_studio_mac_switch" string="Mac Switch" class="fw-bold"/>
+            <field name="x_studio_mac_switch" readonly="x_studio_tiene_switch == False" required="x_studio_tiene_switch == True"/>
+          </div>
+          <group colspan="2" class="mt-2" name="studio_group_c8ced3">
+            <!--<field name="x_studio_observaciones_de_planificacion" style="padding: 5px; background-color:#faffb3; border: 2px solid black; border-radius: 10px; font-size: 14px;" string="Observ. de planificación"/>-->
+            <field name="x_studio_mac_digitada" string="SN Digitada"/>
+            <field name="x_studio_equipo_id" string="ONU: Lote/Nro Serie (Mac)" options="{&quot;no_create&quot;:true}" invisible="1"/>
+            <field name="x_studio_name_producto" string="Name Producto" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+            <field name="x_studio_cambio_de_equipo" invisible="(project_id == 3) or (project_id == 2)"/>
+          </group>
+        </group>
+        <group name="studio_group_459af9">
+          <group name="studio_group_de4e8a" invisible="project_id in [4]">
+            <field name="x_studio_codigo_bobina_vis" string="Codigo bobina ins"/>
+            <field name="x_studio_fibra_proyectada_1" string="Fibra proyectada"/>
+            <!--<field name="x_studio_inicio_fibra_averia" string="Inicio fibra"/>-->
+            <!--<field name="x_studio_fin_fibra_averia" string="Fin Fibra"/>-->
+            <!--<field name="x_studio_descuento_fibra_averia" string="Descuento Fibra"/>-->
+          </group>
+          <group name="studio_group_055af5">
+            <!--<field name="x_studio_inicio_utp_averia" string="Inicio UTP"/>-->
+            <!--<field name="x_studio_fin_utp_averia" string="Fin UTP"/>-->
+            <!--<field name="x_studio_descuento_utp_averia" string="Descuento UTP"/>-->
+            <field name="x_studio_utp_tv_box" string="UTP TV"/>
+            <field widget="signature" name="x_studio_firma_tecnico" invisible="True"/>
+          </group>
+          <group class="mt-2" string="Descuento Fibra" invisible="project_id in [4]" name="studio_group_1c19a8">
+            <field name="x_tipo_de_hilo" string="Tipo de Hilo"/>
+            <field name="x_studio_inicio_fibra_averia" string="Inicio fibra"/>
+            <field name="x_studio_fin_fibra_averia" string="Fin Fibra"/>
+            <field name="x_studio_descuento_fibra_averia" string="Descuento Fibra"/>
+          </group>
+          <group class="mt-2" string="Descuento UTP" name="studio_group_436855">
+            <field name="x_studio_inicio_utp_averia" string="Inicio UTP"/>
+            <field name="x_studio_fin_utp_averia" string="Fin UTP"/>
+            <field name="x_studio_descuento_utp_averia" string="Descuento UTP"/>
+          </group>
+          <separator string="INGRESO APLICATIVO"/>
+          <div class="mt-2 col-lg-12" invisible="not x_dato_vale" name="studio_div_ab197c">
+            <label for="x_dato_vale" class="fw-bold"/>
+            <field class="alert alert-success p-2 border border-dark" role="status" name="x_dato_vale"/>
+          </div>
+        </group>
+        <!--<field name="x_dato_vale"/>-->
+      </group>
+      <group name="studio_group_a9e387">
+        <group name="studio_group_yJfkH_left" string="Materiales Utilizados" invisible="project_id  in [3, 4]">
+          <group name="studio_group_8253f0">
+            <field name="x_studio_conectores_rj45" string="Conector RJ45"/>
+            <field name="x_studio_manguito_40mm"/>
+            <field name="x_studio_manguito_60mm"/>
+            <field name="x_studio_vt_grapas8" string="Grapas 8"/>
+            <field name="x_studio_vt_grapas" string="Grapas"/>
+            <field name="x_studio_vt_cintillos" string="Cintillos"/>
+            <field name="x_studio_rosetas" string="Roseta"/>
+            <field name="x_studio_vt_patchcord_apc_upc2" string="Patchcord APC UPC"/>
+          </group>
+          <group name="studio_group_b91d4a">
+            <field name="x_studio_vt_pilas" string="Pilas"/>
+            <field name="x_studio_patchcord_apc_apc_1" string="Patchcord Verde-Verde"/>
+            <field name="x_studio_templadores" string="Templador"/>
+            <field name="x_studio_pigtail_vt" string="Pigtail"/>
+            <field name="x_studio_utp_ont_vt" string="Utp ONT"/>
+            <field name="x_cable_aux_vt" string="Cable Aux 1mt"/>
+            <field name="x_studio_cable_hdmi" string="Cable HDMI 1mt"/>
+          </group>
+        </group>
+        <group name="studio_group_yJfkH_right" string="Codigos de Materiales" invisible="project_id  in [3, 4]">
+          <field name="x_studio_cod_grapas8_vt" string="Cod grapas 8"/>
+          <field name="x_studio_cod_grapas_vt" string="Cod grapas"/>
+          <field name="x_studio_cod_cintillos_vt" string="Cod cintillos"/>
+          <field name="x_cod_cargador_vt" string="Cod Cargador"/>
+          <field name="x_control_deco_vt" string="Cod Control para Deco"/>
+          <field name="x_cod_roseta_vt" string="Cod Roseta"/>
+          <field name="x_cod_patchcord_vt" string="Cod Patchcord"/>
+        </group>
+      </group>
+      <group name="studio_group_7rm_1jlsg5ig4">
+        <group name="studio_group_7rm_left" string="POTENCIAS" invisible="project_id != 1 ">
+          <field name="x_studio_potencia_nap"/>
+          <field name="x_studio_potencia_onp" string="Potencia ONT"/>
+          <field name="x_studio_diferencia_optica" force_save="1" readonly="True"/>
+        </group>
+      </group>
+      <group name="studio_group_yFwct" invisible="project_id not in [3, 4]">
+        <group string="Datos tecnicos" invisible="project_id not in [4]" name="studio_group_8f07f9">
+          <field name="troncal_maintenance"/>
+          <field name="odf_maintenance"/>
+          <field name="hilo_maintenance"/>
+          <field name="caja_maintenance"/>
+          <field name="type_caja"/>
+          <field name="x_tipo_de_hilo" string="Tipo de Hilo"/>
+          <field name="hub_nap_code" options="{&quot;no_create&quot;:true}"/>
+          <field name="input_power"/>
+          <field name="optical_power"/>
+          <field name="x_studio_clientes_1" readonly="stage_id == 4"/>
+          <field name="x_studio_clientes" invisible="True"/>
+          <field name="x_studio_precio" readonly="stage_id == 4"/>
+          <field name="fiber_type"/>
+          <field name="initial_footage"/>
+          <field name="final_footage"/>
+          <field name="fiber_measurement"/>
+          <field name="total_price"/>
+          <field name="platform"/>
+        </group>
+        <group name="studio_group_yFwct_left" string="datos de afectacion">
+          <group colspan="2" name="studio_group_6527a4">
+            <field name="x_studio_nro_visita_tecnica" invisible="project_id in [4]" required="project_id in [3] and x_studio_persona_gestor"/>
+            <field name="x_studio_sector" invisible="True"/>
+            <field name="x_studio_diagnostico_tecnico_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" required="payment_type_project_id == 'MASIVA' or project_id in [3] and x_studio_persona_gestor" invisible="project_id != 3" domain="[]"/>
+            <field name="x_studio_grado_afectacion" string="Grado Afectacion" required="project_id in [3] and x_studio_persona_gestor" invisible="project_id != 3"/>
+          </group>
+          <group colspan="2" class="mt-2" name="studio_group_8b49fe">
+            <field name="x_studio_solucion_tecnica_id" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" required="project_id in [3] and x_studio_persona_gestor" invisible="project_id != 3"/>
+            <field name="x_studio_causo_dao" string="Causo daño" required="payment_type_project_id == 'MASIVA' or project_id in [3] and x_studio_persona_gestor" invisible="project_id != 3"/>
+            <field name="x_studio_tiempo_de_afectacion" invisible="x_studio_tiempo_de_afectacion == 0"/>
+            <field name="x_studio_observacion_tecnica" required="payment_type_project_id == 'MASIVA' or project_id in [3] and x_studio_persona_gestor"/>
+            <field name="x_studio_reportado_en_sisrep" string="Reportado en SISREP" invisible="project_id == 4 or not (context.get('uid') in [6, 15])"/>
+            <field name="x_cod_sisrep" invisible="project_id == 4 or not (context.get('uid') in [6, 15])" force_save="1" readonly="uid != 15"/>
+          </group>
+        </group>
+        <group name="studio_group_yFwct_right" string="" invisible="project_id in [2, 4]">
+          <!--<field name="x_studio_fraccionamiento" string="Fraccionamiento"/>-->
+          <field name="x_tiene_ticket"/>
+          <field name="x_studio_mac_tv_instalada_del_noc" string="Mac Tv instalada del Noc"/>
+          <field name="x_studio_se_realiz_cambio_de_equipo" string="Se realizó cambio de equipo"/>
+          <field name="x_studio_formato_firmado" invisible="project_id in [1, 4, 2]"/>
+          <field name="x_studio_equipo_cambio_id" string="Equipo Cambiado" invisible="1"/>
+          <field name="x_studio_equipo_nuevo_id" string="equipo nuevo id" invisible="1"/>
+          <field name="x_studio_marca_equipo_nuevo" string="marca equipo nuevo" invisible="1"/>
+          <field name="x_studio_modelo_equipo_nuevo" string="modelo equipo nuevo" invisible="1"/>
+          <div class="mt-2" colspan="2" invisible="not x_dato_vale" name="studio_div_ab197c">
+            <label for="x_dato_vale" class="fw-bold"/>
+            <field class="alert alert-success p-2 border border-dark" role="status" name="x_dato_vale"/>
+          </div>
+        </group>
+        <group name="studio_group_LRTgS_left" string="Router principal activado" invisible="project_id in [2, 4]">
+          <field name="x_studio_marca_del_equipo_activado" string="1.Marca del equipo activado"/>
+          <field name="x_studio_tipo_de_serie_activado" string="2.Tipo de serie activado"/>
+          <label for="x_studio_mac_instalada" string="Mac de Instalacion Actual"/>
+          <div class="alert alert-success p-2 border border-dark mt-2" role="status" name="studio_div_da8418">
+            <field name="x_studio_mac_instalada" force_save="True" readonly="1"/>
+          </div>
+          <!--<field name="x_studio_numeracin_del_equipo_activado" string="3.Numeración del equipo activado"/>-->
+        </group>
+        <group name="studio_group_LRTgS_right" string="Repetidor Activado" invisible="project_id in [2, 4]">
+          <field name="x_studio_repetidor_activado" string="1.Marca del Repetidor Activado"/>
+          <field name="x_studio_tipo_del_repetidor_activado" string="2.Tipo del repetidor Activado"/>
+          <field name="x_studio_mac" string="3.Numeración de repetidor activado"/>
+        </group>
+        <group name="studio_group_gu0JH_left" string="Router principal retirado" invisible="project_id in [2, 4]">
+          <field name="x_studio_marca_del_equipo_retirado" string="1.Marca del equipo retirado"/>
+          <field name="x_studio_tipo_de_serie_retirado" string="2.Tipo de serie retirado"/>
+          <label for="x_studio_mac_noc" string="Mac Antigua" invisible="project_id in [4]"/>
+          <div class="alert alert-primary p-2 border border-dark mt-2" role="status" invisible="project_id in [4]" name="studio_div_a5809a">
+            <field name="x_studio_mac_noc" class="oe_inline" force_save="True" readonly="0"/>
+            <!--readonly="stage_id == 4"-->
+          </div>
+          <field class="badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-microchip mt-2" string="Dato ONT" name="x_dato_ont" force_save="True" readonly="True"/>
+          <field name="x_mac_coincide"/>
+          <!--<field name="x_studio_mac_nueva"/>-->
+        </group>
+        <group name="studio_group_gu0JH_right" string="Repetidor Retirado" invisible="project_id in [2, 4]">
+          <field name="x_studio_repetidor_cambiado" string="1.Marca del Repetidor Retirado" force_save="True"/>
+          <field name="x_studio_tipo_de_repetidor_retirado" string="2.Tipo de repetidor retirado" force_save="True"/>
+          <field name="x_studio_mac_rep_retirada" string="3.Numeración de repetidor retirado" force_save="True"/>
+        </group>
+        <group name="studio_group_M7vs9_left" string="DECO activado" invisible="project_id in [2, 4]">
+          <field name="x_studio_mac_tv_activado" string="DECO Activado"/>
+          <field name="x_studio_mac_tv_2_activado" string="DECO 2 Activado"/>
+          <field name="x_studio_mac_tv_3_activado" string="DECO 3 Activado"/>
+          <field name="x_studio_mac_tv_4_activado" string="DECO 4 Activado"/>
+          <field name="x_studio_switch_activado" string="Switch activado"/>
+        </group>
+        <group name="studio_group_M7vs9_right" string="DECOS Retirado" invisible="project_id in [2, 4]">
+          <field name="x_studio_mac_tv" string="MAC TV"/>
+          <field name="x_studio_mac_tv_2" string="MAC TV 2"/>
+          <field name="x_studio_mac_tv_3" string="MAC TV 3"/>
+          <field name="x_studio_mac_tv_4" string="MAC TV 4"/>
+          <field name="x_studio_switch_retirado_1"/>
+          <!--<field name="x_studio_mac_tv_retirado" string="DECO Retirado"/>-->
+          <!--<field name="x_studio_mac_tv_2_retirado" string="DECO 2 Retirado"/>-->
+          <!--<field name="x_studio_mac_tv_3_retirado" string="DECO 3 Retirado"/>-->
+          <!--<field name="x_studio_mac_tv_4_retirado" string="DECO 4 Retirado"/>-->
+          <!--<field name="x_studio_switch_retirado" string="Switch retirado"/>-->
+        </group>
+        <group invisible="project_id in [2, 4]" name="studio_group_a1d912">
+          <group string="Codigos de Materiales" colspan="2" name="studio_group_69ac81" invisible="True">
+            <field name="x_cod_cargador_vt" string="Cod Cargador"/>
+            <field name="x_control_deco_vt" string="Cod Control para Deco"/>
+            <field name="x_cod_patchcord_vt" string="Cod Patchcord"/>
+            <field name="x_studio_cod_grapas8_vt" string="Cod grapas 8"/>
+            <field name="x_studio_cod_grapas_vt" string="Cod grapas"/>
+            <field name="x_studio_cod_cintillos_vt" string="Cod cintillos"/>
+            <field name="x_cod_roseta_vt" string="Cod Roseta"/>
+          </group>
+          <group name="studio_group_q4grC_right" string="Descuento Fibra y Utp" colspan="2">
+            <group name="studio_group_RNG6U">
+              <field name="x_studio_vt_nro_de_hilo" string="Nro de hilo" force_save="1" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+              <field name="x_studio_codigo_bobina_vis" string="Codigo bobina" readonly="stage_id == 4 and uid != 19"/>
+              <field name="x_studio_inicio_fibra_averia" string="Inicio fibra" readonly="stage_id == 4 and uid != 19"/>
+              <field name="x_studio_fin_fibra_averia" string="Fin fibra" readonly="stage_id == 4 and uid != 19"/>
+              <field name="x_studio_descuento_fibra_averia" string="Descuento fibra" readonly="stage_id == 4 and uid != 19"/>
+            </group>
+            <group name="studio_group_055af52">
+              <field name="x_studio_inicio_utp_averia" string="Inicio UTP" readonly="stage_id == 4 and uid != 19"/>
+              <field name="x_studio_fin_utp_averia" string="Fin UTP" readonly="stage_id == 4 and uid != 19"/>
+              <field name="x_studio_descuento_utp_averia" string="Descuento UTP" readonly="stage_id == 4 and uid != 19"/>
+            </group>
+          </group>
+          <group name="studio_group_q33dC_right" string="OTROS MATERIALES">
+            <field name="x_crucetas" string="Crucetas" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_hebillas" string="Hebillas" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_cinta" string="Cinta Bandit" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_abrazaderas" string="Abrazadera" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_clevis" string="Clevis" readonly="stage_id == 4 and uid != 19"/>
+          </group>
+          <group name="studio_group_7rm_left" string="POTENCIAS">
+            <field name="x_studio_potencia_nap"/>
+            <field name="x_studio_potencia_onp" string="Potencia ONT"/>
+            <field name="x_studio_diferencia_optica" force_save="1" readonly="True"/>
+          </group>
+        </group>
+        <group name="studio_group_q4grC_left" string="Materiales Utilizados">
+          <group name="studio_group_8253f02">
+            <field name="x_studio_tipo_de_mufa" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_mufa" string="Mufa" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_tipo_de_bandeja" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_bandeja" string="Bandeja" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_tipo_de_caja" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_caja_nap" string="Caja Nap" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_splitter" string="Splitter" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_tipo_de_odf" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_odf_con_bandeja" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_pigtail_vt" string="Pigtail" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_enfrentadores_vt" string="Enfrentadores" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_cable_aux_vt" string="Cable Aux 1mt" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_cable_hdmi" string="Cable HDMI" force_save="1" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_conectores_rj45" string="Conector RJ45" force_save="1" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+          </group>
+          <group name="studio_group_b91d4a2">
+            <field name="x_studio_patchcord_apc_apc_1" string="Patchcord APC APC" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_vt_patchcord_apc_upc2" string="Patchcord APC UPC" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_rosetas" string="Roseta" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_manguito_40mm" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_manguito_60mm" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_preformado_negro" string="Preformado Negro" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_preformado_naranja" string="Preformado Naranja" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_templadores" string="Templador" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_tipo_de_cargador" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_cargador" force_save="1" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_control" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_fleje" string="Fleje" force_save="1" readonly="stage_id == 4 and uid != 19"/>
+            <field name="x_studio_vt_pilas" string="Pilas" force_save="1" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+            <field name="x_studio_vt_grapas8" string="Grapas 8" readonly="stage_id == 4 and uid != 19" invisible="True"/>
+            <field name="x_studio_vt_grapas" string="Grapas" readonly="stage_id == 4 and uid != 19" invisible="True"/>
+            <field name="x_studio_vt_cintillos" string="Cintillos 10" readonly="stage_id == 4 and uid != 19" invisible="True"/>
+            <field name="x_studio_vt_cintillos_15" string="Cintillos 15" readonly="stage_id == 4 and uid != 19" invisible="True"/>
+            <field name="x_studio_utp_ont_vt" string="Utp ONT" readonly="stage_id == 4 and uid != 19" invisible="project_id in [4]"/>
+          </group>
+        </group>
+        <group string="Datos de pago" invisible="project_id not in [4]" name="studio_group_cfff9a">
+          <field name="payment_type_project_id" force_save="1" readonly="uid != 6" string="Tipo de pago" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="payment_type_price" widget="monetary" options="{&quot;currency_field&quot;:&quot;x_currency_id&quot;}" invisible="uid != 6 and uid != 15 and uid != 10 and uid != 7 and uid != 19 and uid != 23"/>
+          <field name="x_studio_pago_conforme" widget="boolean_toggle" string="Pago conforme"/>
+          <field name="x_studio_descuento" invisible="x_studio_pago_conforme != False" string="Descuento" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;INS&quot;]]"/>
+          <field name="x_studio_monto_1" string="Monto" invisible="x_studio_pago_conforme != False or uid != 6 and uid != 15 and uid != 10 and uid != 7 and uid != 19 and uid != 23" widget="monetary" options="{&quot;currency_field&quot;:&quot;x_currency_id&quot;}"/>
+        </group>
+        <group name="studio_group_q456dC_right" invisible="project_id not in [4]" string="OTROS MATERIALES">
+          <field name="x_crucetas" string="Crucetas"/>
+          <field name="x_hebillas" string="Hebillas"/>
+          <field name="x_cinta" string="Cinta Bandit"/>
+          <field name="x_abrazaderas" string="Abrazadera"/>
+          <field name="x_clevis" string="Clevis"/>
+        </group>
+      </group>
+    </page>
+    <page string="Retiros" name="studio_page_UezrP" invisible="project_id in [3] or project_id in [1] or project_id in [4]">
+      <group name="studio_group_UezrP">
+        <group name="studio_group_UezrP_left" string="RETIRO de Equipo">
+          <!--<div class="badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-microchip mt-2" invisible="not x_studio_mac_noc">-->
+          <field class="badge rounded-pill fw-bold text-bg-dark oe_inline fa fa-microchip mt-2" string="Dato ONT" name="x_dato_ont" force_save="True" readonly="True"/>
+          <!--</div>-->
+          <field name="x_studio_estado_retiro_equipo" widget="radio" string="EstadoE"/>
+          <field name="x_studio_fecha_retiro_equipo" string="Fecha Retiro Equipo"/>
+          <field name="x_studio_encargado_retiro_equipo_id" string="Encargado de retiro de equipo" widget="many2one_avatar_employee" domain="[('id', '=', x_studio_empleado_id)]" options="{'no_create': true, 'no_create_edit': true}"/>
+          <field name="x_studio_tcnico_retiro_equipo" string="Técnico retiro equipo"/>
+          <field name="x_studio_cliente_en_que_se_reutilizo_equipo" string="Cliente en que se reutilizo equipo" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_observacion_tecnica"/>
+          <field name="x_studio_cliente_dni_retiroe" string="Cliente DNi (retiroE)" invisible="x_studio_tcnico_retiro_equipo != 'Reutilizo'"/>
+        </group>
+        <group name="studio_group_UezrP_right" string="RETIRO de cable">
+          <field name="x_studio_estado_retiro_cable" string="EstadoC" widget="radio"/>
+          <field name="x_studio_fecha_retiro_cable" string="Fecha Retiro Cable"/>
+          <field name="x_studio_encargado_retiro_cable_id" string="Encargado de retiro de Cable" domain="[('parent_id', '=', x_studio_empleado_id)]" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_tcnico_retiro_fibra" string="Técnico retiro fibra"/>
+          <field name="x_studio_cliente_en_que_se_reutilizo" string="Cliente en que se reutilizo" domain="[]" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_cliente_dni_retiro" string="Cliente DNI (retiroC)" invisible="x_studio_tcnico_retiro_fibra != 'Reutilizo'"/>
+        </group>
+      </group>
+      <group name="studio_group_OtFUe">
+        <group name="studio_group_OtFUe_left" string="RETIRO - Router principal">
+          <field name="x_studio_tecnologa_del_equipo_retirado" string="1. RETIRO Marca del equipo retirado"/>
+          <field name="x_studio_pon_del_equipo_retirado" string="2. RETIRO PON del equipo retirado"/>
+          <field name="x_studio_mac_correcta" string="3. RETIRO MAC del equipo retirado"/>
+        </group>
+        <group name="studio_group_OtFUe_right" string="RETIRO - Repetidor retirado">
+          <field name="x_studio_repestadoe" string="RepEstadoE"/>
+          <field name="x_studio_repetidor_retirado" string="1. RETIRO Marca del repetidor retirado"/>
+          <field name="x_studio_mac_del_repetidor" string="2. RETIRO Numeración de repetidor retirado"/>
+        </group>
+        <group name="studio_group_fQwVD_left" string="RETIRO - ROUTER / NI">
+          <field name="x_pon" string="PON"/>
+          <field name="x_mac" string="MAC"/>
+          <field name="x_obs" string="OBS"/>
+        </group>
+      </group>
+      <group name="studio_group_fQwVD">
+        <group name="studio_group_fQwVD_left" string="RETIRO - DECO Retirado">
+          <field name="x_studio_retiro_mac_tv_retirado" string="RETIRO DECO Retirado"/>
+          <field name="x_studio_retiro_mac_tv_2_retirado" string="RETIRO DECO 2 Retirado"/>
+          <field name="x_studio_retiro_mac_tv_3_retirado" string="RETIRO DECO  3 Retirado"/>
+          <field name="x_studio_retiro_mac_tv_4_retirado" string="RETIRO DECO 4 Retirado"/>
+          <field name="x_studio_retiro_mac_switch_retirado_1" string="RETIRO Mac SWITCH retirado"/>
+        </group>
+        <group name="studio_group_fQwVD_right" string="RETIRO - OTROS">
+          <field name="x_studio_cable_utp_retirado" string="Cable UTP retirado"/>
+          <field name="x_studio_templadores_retirados" string="Templadores retirados"/>
+          <field name="x_studio_metraje_de_fibra_retirada" string="Metraje de fibra retirada"/>
+          <field name="x_studio_pago_conforme" string="Reporte conforme"/>
+          <field name="x_studio_obs_retiro" string="Obs retiro"/>
+        </group>
+      </group>
+      <group name="studio_group_3QqaF">
+        <group name="studio_group_3QqaF_left" string="Datos">
+          <field name="x_studio_mac_actual_1" string="Mac actual"/>
+          <field name="x_studio_mac_tv_actual"/>
+          <field name="x_studio_repetidor_actual" string="Repetidor Actual"/>
+          <field name="x_studio_equipo_instalado_id" string="Equipo Instalado" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_desc_fibra" string="Desc. fibra"/>
+          <field name="x_studio_desc_utp" string="Desc. UTP"/>
+          <field name="x_studio_desc_templador_1" string="Desc. Templador"/>
+        </group>
+        <group name="studio_group_3QqaF_right">
+          
+          
+          
+          
+        </group>
+      </group>
+    </page>
+    <page string="Adicionales" name="studio_page_mg4bM" invisible="project_id in [2, 4]">
+      <separator string="Adicionales"/>
+      <field name="x_studio_servicio_adicional_ids" string="servicio adicional ids">
+        <tree>
+          <field name="x_studio_sequence" widget="handle"/>
+          <field name="x_studio_product_id" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_unidad_de_medida" string="unidad de medida" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_cantidad"/>
+          <field name="x_studio_monto" string="Precio unitario"/>
+        </tree>
+        <form>
+          <header/>
+          <sheet string="servicio adicional" name="studio_sheet_12d003">
+            <widget name="web_ribbon" text="Archivado" bg_color="bg-danger" invisible="x_active == True"/>
+            <field name="x_active" invisible="1"/>
+            <div class="oe_title" name="studio_div_184157">
+              <h1>
+                <field name="x_name" required="1" placeholder="Name..." invisible="1"/>
+              </h1>
+            </div>
+            <group name="studio_group_a587d9">
+              <group name="studio_group_a587d9_left">
+                <field name="x_studio_task_id" invisible="1"/>
+                <field name="x_studio_product_id" domain="[[&quot;x_studio_tipo&quot;,&quot;=&quot;,32]]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+                <field name="x_studio_unidad_de_medida" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" force_save="True" readonly="1"/>
+                <field name="x_studio_monto" string="Precio unitario"/>
+                <field name="x_studio_cantidad" string="Cantidad"/>
+              </group>
+              <group name="studio_group_a587d9_right">
+                <field name="x_currency_id" string="Moneda" force_save="True" readonly="1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+              </group>
+            </group>
+          </sheet>
+        </form>
+      </field>
+      <field name="x_studio_observacion_de_pagos" string="Observacion de pagos"/>
+      <group name="studio_group_E9QP5">
+        <group name="studio_group_E9QP5_left" string="Datos de Adicional">
+          <field name="x_studio_tiene_adicionales"/>
+          <field name="x_studio_cobranza"/>
+          <field name="x_studio_nro_recibo_emitido"/>
+        </group>
+        <group name="studio_group_E9QP5_right"/>
+      </group>
+    </page>
+    <!--<page string="Encuesta Visita" name="studio_page_VOEj3" invisible="(project_id == 2) or (project_id == 1)">-->
+    <!--  <group name="studio_group_VOEj3">-->
+    <!--    <group name="studio_group_VOEj3_left" string="Seguimiento y Otros">-->
+    <!--      <field name="x_studio_pregunta1" widget="radio"/>-->
+    <!--      <field name="x_studio_estado" string="Estado"/>-->
+    <!--      <field name="x_studio_selection_field_pqv4R" string="Canal"/>-->
+    <!--      <field name="x_studio_personal" widget="many2one_avatar_employee" string="Personal" domain="[[&quot;department_id&quot;,&quot;=&quot;,13]]" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>-->
+    <!--      <field name="x_studio_cobro_por_reparacin" string="Cobro por reparación"/>-->
+    <!--      <field name="x_studio_monto" string="Monto"/>-->
+    <!--      <field name="x_studio_observacin" string="Observación"/>-->
+    <!--    </group>-->
+    <!--    <group name="studio_group_VOEj3_right" string="Atención Técnica">-->
+    <!--      <field name="x_studio_tcnico_uniformado_y_con_identificacin" string="Técnico uniformado y con identificación"/>-->
+    <!--      <field name="x_studio_calificacin_de_atencin" string="Calificación de atención"/>-->
+    <!--      <field name="x_studio_satisfecho_con_el_trabajo_realizado" string="Satisfecho con el trabajo realizado"/>-->
+    <!--    </group>-->
+    <!--  </group>-->
+    <!--</page>-->
+    <!--<page string="Encuesta Instalación" name="studio_page_2ZUfu" invisible="(project_id == 3) or (project_id == 2)">-->
+    <!--  <group name="studio_group_2ZUfu">-->
+    <!--    <group name="studio_group_2ZUfu_left" string="Seguimiento y Otros">-->
+    <!--      <field name="x_studio_estado_instalacin" string="Estado Instalación"/>-->
+    <!--      <field name="x_studio_canal_instalacin" string="Canal Instalación"/>-->
+    <!--      <field name="x_studio_personal_instalacin" widget="many2one_avatar_employee" string="Personal post venta" domain="[[&quot;department_id&quot;,&quot;=&quot;,20]]" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>-->
+    <!--      <field name="x_studio_cobro_indebido" string="Cobro"/>-->
+    <!--      <field name="x_studio_monto_cobro" string="Monto Cobro" invisible="x_studio_cobro_indebido != 'SI'"/>-->
+    <!--      <field name="x_studio_motivo_de_cobro" string="Motivo de cobro" invisible="x_studio_cobro_indebido != 'SI'"/>-->
+    <!--      <field name="x_studio_obs_de_instalacin" string="Obs. de instalación"/>-->
+    <!--      <field name="x_studio_horario_1" string="Horario 1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" invisible="x_studio_obs_de_instalacin != 'VOLVER A LLAMAR'"/>-->
+    <!--    </group>-->
+    <!--    <group name="studio_group_2ZUfu_right" string="Atención Técnica">-->
+    <!--      <field name="x_studio_tcnico_uniformado_e_identificado" string="Técnico uniformado e identificado"/>-->
+    <!--      <field name="x_studio_calificacin_de_instalacin" string="Calificación de instalación"/>-->
+    <!--      <field name="x_studio_satisfecho_con_la_instalacin" string="Satisfecho con la instalación"/>-->
+    <!--      <field name="x_studio_comunicacin_con_el_cliente" string="Comunicación con el cliente"/>-->
+    <!--    </group>-->
+    <!--  </group>-->
+    <!--  <group name="studio_group_hQq3O">-->
+    <!--    </group>-->
+    <!--</page>-->
+    <page string="Inspección de instalación" name="studio_page_A93Ib" invisible="project_id in[ 3, 2, 4]">
+      <group name="studio_group_A93Ib">
+        <group name="studio_group_A93Ib_left" string="Datos de Inspección">
+          <field name="x_studio_jefe_de_cuadrilla" widget="many2one_avatar_employee" string="Jefe de cuadrilla" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;name&quot;,&quot;in&quot;,[&quot;Augusto.Reyes&quot;,&quot;Carlos.Montejo&quot;,&quot;Carlos.Silva&quot;,&quot;Carlos.Tiburcio&quot;,&quot;Cesar.Mamani&quot;,&quot;Cristian.Villena&quot;,&quot;Daniel.De la Cruz&quot;,&quot;Darwin.Pinedo&quot;,&quot;Dean.Chinguel&quot;,&quot;Diego.Pinedo&quot;,&quot;Dionicio.Florencio&quot;,&quot;Eduardo.Medina&quot;,&quot;Erick.Medina&quot;,&quot;Estalin.Paulino&quot;,&quot;Frank.Camahuali&quot;,&quot;GiamFranco.Zegarra&quot;,&quot;Hector.Aguilar&quot;,&quot;Johan.Perez&quot;,&quot;Jonathan.Loroña&quot;,&quot;Jordan.Paulino&quot;,&quot;Juan.Fernandez&quot;,&quot;Julio.Morales&quot;,&quot;Junior.Samanamud&quot;,&quot;Kevin.Chumbiriza&quot;,&quot;Maximo.Siccha&quot;,&quot;Orlando.Mejia&quot;,&quot;Sami.Cossio&quot;,&quot;Victor.Pineda&quot;,&quot;Brayan.Roman&quot;,&quot;Williams.Quintana&quot;,&quot;Yefri.Obeso&quot;,&quot;Alan.Enriquez&quot;,&quot;Yomel.Rodriguez&quot;,&quot;Irving.Diaz&quot;,&quot;Fernando.Rumayna&quot;,&quot;Christian.Arias&quot;,&quot;Jhony.Villadeza&quot;,&quot;Angel.Lujan&quot;,&quot;Jesus.Miguel&quot;,&quot;Jhordan.Paulino&quot;,&quot;Jefri.Obeso&quot;,&quot;Jefferson.Carbajal&quot;,&quot;Luis.Tiburcio&quot;,&quot;Abner.Becerra&quot;,&quot;Luis.Tinoco&quot;,&quot;Alberto.Batallano&quot;]]]"/>
+          <field name="x_studio_modalidad_de_jefe" string="Modalidad de jefe"/>
+          <field name="x_studio_fecha_de_inspeccin" string="Fecha de inspección"/>
+          <field name="x_studio_tcnico_autor" widget="many2one_avatar_employee" string="Técnico autor" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;job_title&quot;,&quot;ilike&quot;,&quot;tecnico&quot;]]"/>
+          <field name="x_studio_personal_encargado_de_la_inspeccin" widget="many2one_avatar_employee" string="Personal encargado de la inspección" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_observaciones_ins" string="Observaciones Ins."/>
+          <field name="x_studio_estado_de_inspeccin" string="Estado de inspección"/>
+        </group>
+        <group name="studio_group_A93Ib_right" string="Descuento">
+          <field name="x_studio_descuento" string="Descuento" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;INS&quot;]]"/>
+          <field name="x_studio_monto_1" string="Monto 1" invisible="x_studio_descuento == False"/>
+          <field name="x_studio_descuento_2" string="Descuento 2" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;INS&quot;]]"/>
+          <field name="x_studio_monto_2" string="Monto 2" invisible="x_studio_descuento_2 == False"/>
+          <field name="x_studio_descuento_3" string="Descuento 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;INS&quot;]]"/>
+          <field name="x_studio_monto_3" string="Monto 3" invisible="x_studio_descuento_3 == False"/>
+          <field name="x_studio_monto_total" string="Monto total" invisible="(x_studio_monto_3 == 0) and ((x_studio_monto_2 == 0) and (x_studio_monto_1 == 0))"/>
+        </group>
+      </group>
+      <group name="studio_group_GtOGO">
+        <group name="studio_group_GtOGO_left" string="Inspección de materiales">
+          <field name="x_studio_rj45" string="RJ45"/>
+          <field name="x_studio_manguito_obs" string="Manguito obs."/>
+          <field name="x_studio_templador_obs" string="Templador obs."/>
+        </group>
+        <group name="studio_group_GtOGO_right">
+          <field name="x_studio_utp_ont_obs_1" string="Utp ONT obs."/>
+          <field name="x_studio_fibra_obs" string="Fibra obs."/>
+          <field name="x_studio_observaciones_de_materiales" string="Observaciones de materiales" invisible="(x_studio_fibra_obs == 0) and ((x_studio_utp_ont_obs_1 == 0) and ((x_studio_templador_obs == 0) and ((x_studio_manguito_obs == 0) and (x_studio_rj45 == 0))))"/>
+        </group>
+      </group>
+    </page>
+    <page string="Supervisión de Proyecto" name="studio_page_fQJTe" invisible="project_id in [4]">
+      <group name="studio_group_fQJTe" invisible="project_id in [2, 1, 4]">
+        <group name="studio_group_fQJTe_left" string="averías">
+          <field name="x_studio_jefe_de_cuadrilla_avera" widget="many2one_avatar_employee" string="Jefe de cuadrilla (avería)" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[&quot;&amp;&quot;, (&quot;work_phone&quot;, &quot;!=&quot;, False), (&quot;department_id&quot;, &quot;=&quot;, 28)]"/>
+          <field name="x_studio_modalidad_de_jefe_avera" string="Modalidad de jefe (avería)"/>
+          <field name="x_studio_tcnico_autor_avera" widget="many2one_avatar_employee" string="Técnico autor (avería)" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;job_title&quot;,&quot;ilike&quot;,&quot;tecnico&quot;]]"/>
+        </group>
+        <group name="studio_group_fQJTe_right" string="averías">
+          <field name="x_studio_descuento_avera" string="Descuento avería" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;AVE&quot;]]"/>
+          <field name="x_studio_monto_avera" string="Monto avería" invisible="x_studio_descuento_avera == False"/>
+          <field name="x_studio_descuento_avera_2" string="Descuento avería 2" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;AVE&quot;]]"/>
+          <field name="x_studio_monto_avera_2" string="Monto avería 2" invisible="x_studio_descuento_avera_2 == False"/>
+          <field name="x_studio_descuento_avera_3" string="Descuento avería 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;AVE&quot;]]"/>
+          <field name="x_studio_comentario_de_descuento" string="Comentario de descuento"/>
+          <field name="x_studio_monto_avera_3" string="Monto avería 3" invisible="x_studio_descuento_avera_3 == False"/>
+          <field name="x_studio_total_avera" string="Total avería" invisible="(x_studio_monto_avera_3 == 0) and ((x_studio_monto_avera_2 == 0) and (x_studio_monto_avera == 0))" force_save="1" readonly="True"/>
+        </group>
+      </group>
+      <group name="studio_group_CWL4n" invisible="(project_id == 3) or (project_id == 1)">
+        <group name="studio_group_CWL4n_left" string="Retiros">
+          <field name="x_studio_fecha_de_equipo" force_save="True" readonly="1"/>
+          <field name="x_studio_encargado_retiro_equipo" options="{&quot;no_open&quot;:false,&quot;no_create&quot;:true}" force_save="0" readonly="False"/>
+          <field name="x_studio_modalidad_encargado_equipo" string="Modalidad encargado equipo"/>
+          <field name="x_studio_fecha_de_cable" string="Fecha de cable" force_save="True" readonly="1"/>
+          <field name="x_studio_encargado_retiro_cable" string="Encargado retiro cable" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_modalidad_encargado_cable" string="Modalidad encargado cable"/>
+        </group>
+        <group name="studio_group_CWL4n_right" string="Retiros">
+          <field name="x_studio_descuento_retiro_1" string="Descuento retiro 1" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;RET0&quot;]]"/>
+          <field name="x_studio_monto_retiro_1" string="Monto retiro 1" invisible="x_studio_descuento_retiro_1 == False"/>
+          <field name="x_studio_descuento_retiro_2" string="Descuento retiro 2" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;RET0&quot;]]"/>
+          <field name="x_studio_monto_retiro_2" string="Monto retiro 2" invisible="x_studio_descuento_retiro_2 == False"/>
+          <field name="x_studio_descuento_retiro_3" string="Descuento retiro 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;RET0&quot;]]"/>
+          <field name="x_studio_monto_retiro_3" string="Monto retiro 3" invisible="x_studio_descuento_retiro_3 == False"/>
+          <field name="x_studio_total_retiro" string="Total retiro" force_save="True" readonly="1" invisible="(x_studio_monto_retiro_3 == 0) and ((x_studio_monto_retiro_2 == 0) and (x_studio_monto_retiro_1 == 0))"/>
+        </group>
+      </group>
+      <group name="studio_group_PGzvX" invisible="(project_id == 3) or (project_id == 2)">
+        <group name="studio_group_PGzvX_left" string="Altas">
+          <field name="x_studio_jefe_de_cuadrilla_alta" string="Jefe de cuadrilla (alta)" domain="[&quot;&amp;&quot;, (&quot;x_studio_sede&quot;, &quot;!=&quot;, False), (&quot;department_id&quot;, &quot;=&quot;, 28)]" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_modalidad_de_jefe_alta" string="Modalidad de jefe (alta)"/>
+        </group>
+        <group name="studio_group_PGzvX_right" string="Altas">
+          <field name="x_studio_descuento_alta" string="Descuento alta" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;ALT0&quot;]]"/>
+          <field name="x_studio_monto_alta" string="Monto alta" invisible="x_studio_descuento_alta == False"/>
+          <field name="x_studio_descuento_alta_2" string="Descuento alta 2" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;ALT0&quot;]]"/>
+          <field name="x_studio_monto_alta_2" string="Monto alta 2" invisible="x_studio_descuento_alta_2 == False"/>
+          <field name="x_studio_descuento_alta_3" string="Descuento alta 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;default_code&quot;,&quot;ilike&quot;,&quot;ALT0&quot;]]"/>
+          <field name="x_studio_comentario_de_descuento" string="Observación de descuento"/>
+          <field name="x_studio_monto_alta_3" string="Monto alta 3" invisible="x_studio_descuento_alta_3 == False"/>
+          <field name="x_studio_monto_total_alta" string="Monto total (alta)" force_save="True" readonly="1" invisible="(x_studio_monto_alta_3 == 0) and ((x_studio_monto_alta_2 == 0) and (x_studio_monto_alta == 0))" widget="monetary" options="{&quot;currency_field&quot;:&quot;x_currency_id&quot;}"/>
+        </group>
+      </group>
+    </page>
+    <page string="Seguimiento Visita" name="studio_page_iUiUx" invisible="project_id in [2, 1, 4]" groups="base.group_system">
+      <group name="studio_group_iUiUx">
+        <group name="studio_group_iUiUx_left" string="Primera Visita">
+          <field name="x_studio_codigo_constancia_1" string="Codigo Constancia 1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;x_studio_estado_constancia&quot;,&quot;=&quot;,&quot;Asignado&quot;]]"/>
+          <field name="x_studio_fecha_de_visita_1" string="Fecha de visita 1"/>
+          <field name="x_studio_tecnico_visita_1" widget="many2one_avatar_employee" string="Tecnico visita 1" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_realizar_pago_1" string="Realizar pago 1"/>
+          <field name="x_studio_comentario_1"/>
+        </group>
+        <group name="studio_group_iUiUx_right" string="Segunda Visita">
+          <field name="x_studio_codigo_constancia_2" string="Codigo Constancia 2" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;x_studio_estado_constancia&quot;,&quot;=&quot;,&quot;Asignado&quot;]]"/>
+          <field name="x_studio_fecha_de_visita_2" string="Fecha de visita 2"/>
+          <field name="x_studio_tecnico_visita_2" widget="many2one_avatar_employee" string="Tecnico visita 2" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_realizar_pago_2" string="Realizar pago 2"/>
+          <field name="x_studio_comentario_2"/>
+        </group>
+      </group>
+      <group name="studio_group_oYkSd">
+        <group name="studio_group_oYkSd_left" string="Tercera Visita">
+          <field name="x_studio_codigo_constancia_3" string="Codigo Constancia 3" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}" domain="[[&quot;x_studio_estado_constancia&quot;,&quot;=&quot;,&quot;Asignado&quot;]]"/>
+          <field name="x_studio_fecha_de_visita_3" string="Fecha de visita 3"/>
+          <field name="x_studio_tecnico_visita_3" widget="many2one_avatar_employee" string="Tecnico visita 3" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}"/>
+          <field name="x_studio_realizar_pago_3" string="Realizar pago 3"/>
+          <field name="x_studio_comentario_3"/>
+        </group>
+        <group name="studio_group_oYkSd_right">
+          <field name="x_studio_obs_constancia" string="Obs Constancia"/>
+        </group>
+      </group>
+    </page>
+    <page string="Supervisión Liquidación" name="studio_page_52d_1i9csut5f" invisible="True">
+      <group name="studio_group_52d" invisible="(project_id == 3) or (project_id == 2)">
+        <!-- Descuentos Altas -->
+        <group name="studio_group_52d_left" string="DESCUENTOS ALTAS">
+          <field name="x_studio_jefe_de_cuadrilla_sl_1_ins" widget="many2one_avatar_employee" options="{'no_create': true, 'no_open': true}"/>
+          <field name="x_studio_descuento_1_sl_ins" options="{'no_create': true, 'no_open': true}" domain="[('default_code', 'ilike', 'LIQ')]"/>
+          <field name="x_studio_comentario_sl_1_ins"/>
+          <field name="x_studio_descuento_2_sl_ins" domain="[('default_code', 'ilike', 'LIQ')]" options="{'no_create': true, 'no_open': true}"/>
+          <field name="x_studio_comentario_sl_2_ins"/>
+        </group>
+        <!-- Supervisión Altas -->
+        <group name="studio_group_52d_right" string="SUPERVISIÓN ALTAS">
+          <field name="x_studio_por_subsanar_oficina_ins"/>
+          <field name="x_studio_comentario_sub1_ins"/>
+          <field name="x_studio_por_subsanar_tecnico_ins"/>
+          <field name="x_studio_comentario_sub2_ins"/>
+          <field name="x_studio_subsanado_ins"/>
+        </group>
+      </group>
+      <group name="studio_group_5gq_1iae5hgho">
+        <group name="studio_group_5gq_left">
+        </group>
+        <!-- Liquidación Final Altas -->
+        <group name="studio_group_5gq_right" string="LIQUIDACIÓN FINAL ALTAS" invisible="(project_id == 3) or (project_id == 2)">
+          <field name="x_studio_jefe_de_cuadrilla_sl_ins" widget="many2one_avatar_employee" options="{'no_create': true, 'no_open': true}"/>
+          <!--<field name="x_studio_tipo_de_pago_sl_ins"/>-->
+          <field name="payment_type_liqui_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]"/>
+        </group>
+      </group>
+      <!-- Descuentos VT -->
+      <group name="studio_group_4nf">
+        <group name="studio_group_4nf_left" string="Descuentos VT" invisible="(project_id == 2) or (project_id == 1)">
+          <field name="x_studio_jefe_de_cuadrilla_sl" widget="many2one_avatar_employee"/>
+          <field name="x_studio_modalidad_de_jefe_sl"/>
+          <field name="x_studio_descuento_sl_1" options="{'no_create': true, 'no_open': true}" domain="[('default_code', 'ilike', 'liq')]"/>
+          <field name="x_studio_comentario_sl_1"/>
+          <field name="x_studio_descuento_sl_2" options="{'no_create': true, 'no_open': true}" domain="[('default_code', 'ilike', 'liq')]"/>
+          <field name="x_studio_comentario_sl_2"/>
+        </group>
+        <!-- Supervisión VT -->
+        <group name="studio_group_4nf_right" string="Supervisión VT" invisible="(project_id == 2) or (project_id == 1)">
+          <field name="x_studio_para_subsanar_oficina"/>
+          <field name="x_studio_comentario_sub1"/>
+          <field name="x_studio_por_subsanar_tecnico"/>
+          <field name="x_studio_comentario_sub2"/>
+          <field name="x_studio_subsanado"/>
+        </group>
+      </group>
+      <group name="studio_group_6d8_1i9cscm47">
+        <group name="studio_group_6d8_left"/>
+        <!-- Liquidación Final VT -->
+        <group name="studio_group_6d8_right" string="Liquidación Final VT" invisible="(project_id == 2) or (project_id == 1)">
+          <field name="x_studio_jefe_de_cuadrilla_sl_fin" widget="many2one_avatar_employee" options="{'no_create': true, 'no_open': true}"/>
+          <!--<field name="x_studio_tipo_de_pago_sl_fin"/>-->
+          <field name="payment_type_liqui_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]"/>
+        </group>
+      </group>
+      <!--Descuentos Retiro-->
+      <group name="studio_group_1gg" invisible="(project_id == 3) or (project_id == 1)">
+        <!--<group name="studio_group_1gg_left" string="Descuentos Retiro">-->
+        <!--  <field name="x_studio_jefe_de_cuadrilla_sl_ret" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>-->
+        <!--  <field name="x_studio_modalidad_de_jefe_sl_ret" force_save="1" readonly="True"/>-->
+        <!--  <field name="x_studio_comentario_sl_1_ret"/>-->
+        <!--  <field name="x_studio_comentario_sl_2_ret_1"/>-->
+        <!--</group>-->
+        <!-- Liquidación Final Retiro 1 -->
+        <group name="studio_group_1gg_right" string="Liquidación Final 1 Retiro">
+          <field name="x_studio_jefe_de_cuadrilla_1_ret" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>
+          <field name="x_studio_fecha_de_actividad"/>
+          <!--<field name="x_studio_tipo_de_pago_ret"/>-->
+          <field name="payment_type_liqui_id" options="{&quot;no_open&quot;:true,&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]"/>
+        </group>
+      </group>
+      <!-- Supervisión Retiro -->
+      <!--<group name="studio_group_9ln_1i9el2tvc" invisible="(project_id == 3) or (project_id == 1)">-->
+      <!--  <group name="studio_group_9ln_left" string="Supervisión Retiro">-->
+      <!--    <field name="x_studio_por_subsanar_oficina_ret"/>-->
+      <!--    <field name="x_studio_comentario_sub1_ret"/>-->
+      <!--    <field name="x_studio_por_subsanar_tecnico_ret"/>-->
+      <!--    <field name="x_studio_comentario_sub2_ret"/>-->
+      <!--    <field name="x_studio_subsanado_ret"/>-->
+      <!--  </group>-->
+      <!-- Liquidación Final Retiro 2 -->
+      <!--  <group name="studio_group_9ln_right" string="Liquidación Final 2 Retiro">-->
+      <!--    <field name="x_studio_jefe_de_cuadrilla_2_ret" widget="many2one_avatar_employee" options="{&quot;no_create&quot;:true,&quot;no_open&quot;:true}"/>-->
+      <!--    <field name="x_studio_fecha_de_actividad_2"/>-->
+      <!--    <field name="x_studio_tipo_de_pago_ret2"/>-->
+      <!--  </group>-->
+      <!--</group>-->
+    </page>
+    <page string="Supervisión de liquidación" name="studio_page_7fv_1jsi56ceq">
+      <group name="studio_group_7fv">
+        <group name="studio_group_7fv_left">
+          <field name="x_studio_tipo_de_pago_actividad" force_save="1" readonly="uid in [23, 27, 7, 29] and stage_id in [4]" string="Tipo de Pagos" options="{&quot;no_create&quot;:true}" domain="[('project_ids', 'in', project_id)]"/>
+          <field name="x_studio_empleado" options="{&quot;no_create&quot;:true}"/>
+          <field name="x_studio_obs_liquidacin"/>
+          <field name="x_studio_fecha" force_save="1" readonly="uid == 7 and uid == 15"/>
+        </group>
+      </group>
+    </page>
+  </xpath>
+</data>
