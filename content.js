@@ -1745,6 +1745,14 @@ if (!document.getElementById("quick-button")) {
 
   const CODIGOS_AREA = Object.keys(AREAS);
 
+  // Usuarios que ven TODAS las plantillas, sin importar el área
+  const USUARIOS_VER_TODO = ["jean.quin"];
+
+  function puedeVerTodo(usuario) {
+    const usuarioNormalizado = normalizarTexto(usuario).split(/\s|-/)[0];
+    return USUARIOS_VER_TODO.includes(usuarioNormalizado);
+  }
+
   function obtenerValorCampo(item, nombresCampos) {
     const claveEncontrada = Object.keys(item).find(clave => {
       const claveNormalizada = clave.trim().toLowerCase();
@@ -1837,7 +1845,8 @@ if (!document.getElementById("quick-button")) {
     return {
       codigo,
       nombre: codigo ? AREAS[codigo] : "",
-      usuario: usuarioLogueado
+      usuario: usuarioLogueado,
+      verTodo: puedeVerTodo(usuarioLogueado)
     };
   }
 
@@ -1921,7 +1930,10 @@ if (!document.getElementById("quick-button")) {
     badge.className = areaUsuario.codigo ? "area-badge" : "area-badge warning";
     const esOcOCa = areaUsuario.codigo === "OC" || areaUsuario.codigo === "CA";
 
-    if (areaUsuario.codigo) {
+    if (areaUsuario.verTodo) {
+      badge.className = "area-badge";
+      badge.innerText = "Mostrando todas las plantillas (todas las áreas)";
+    } else if (areaUsuario.codigo) {
       badge.innerText = esOcOCa
         ? "Área detectada: OC - Otras Consultas"
         : `Área detectada: ${areaUsuario.codigo} - ${areaUsuario.nombre}`;
@@ -1951,7 +1963,9 @@ if (!document.getElementById("quick-button")) {
     const textoBusqueda = normalizarTexto(busqueda);
     const esOcOCa = areaUsuario.codigo === "OC" || areaUsuario.codigo === "CA";
 
-    const plantillasPorArea = esOcOCa
+    const plantillasPorArea = areaUsuario.verTodo
+      ? plantillas
+      : esOcOCa
       ? plantillas.filter(plantilla => plantilla.esGeneral || plantilla.areaCodigo === "OC" || plantilla.areaCodigo === "CA")
       : (areaUsuario.codigo
         ? plantillas.filter(plantilla => plantilla.esGeneral || plantilla.areaCodigo === areaUsuario.codigo)
@@ -2080,20 +2094,32 @@ if (!document.getElementById("quick-button")) {
     reloadTemplatesButton.classList.add("loading");
     renderizarEstadoPlantillas("Cargando plantillas...");
 
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
+
     try {
       const url = `${SHEET_URL}${SHEET_URL.includes("?") ? "&" : "?"}_=${Date.now()}`;
-      const response = await fetch(url, { cache: "no-store" });
+      const response = await fetch(url, { cache: "no-store", signal: controller.signal });
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
 
       const data = await response.json();
+
+      if (!Array.isArray(data)) {
+        throw new Error("La respuesta del Sheet no es una lista de plantillas");
+      }
+
       procesarPlantillas(data);
     } catch (error) {
       console.error("ERROR SHEET:", error);
-      renderizarEstadoPlantillas("No se pudieron cargar las plantillas.", "error");
+      const mensaje = error.name === "AbortError"
+        ? "El servidor de plantillas no respondió. Pulsa ↻ para reintentar."
+        : "No se pudieron cargar las plantillas. Pulsa ↻ para reintentar.";
+      renderizarEstadoPlantillas(mensaje, "error");
     } finally {
+      clearTimeout(timeoutId);
       reloadTemplatesButton.disabled = false;
       reloadTemplatesButton.classList.remove("loading");
     }
