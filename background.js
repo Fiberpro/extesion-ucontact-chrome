@@ -16,6 +16,9 @@ async function descargarPlantillas(url) {
       const response = await fetch(urlFinal, {
         cache: "no-store",
         redirect: "follow",
+        // Sin cookies de Google: con sesión iniciada (o varias cuentas) Apps Script
+        // redirige a /u/N/... y responde 404.
+        credentials: "omit",
         signal: controller.signal
       });
 
