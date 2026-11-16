@@ -2089,37 +2089,66 @@ if (!document.getElementById("quick-button")) {
     renderizarVistaActual();
   }
 
+  async function leerPlantillasCache() {
+    try {
+      const { plantillasCache } = await chrome.storage.local.get("plantillasCache");
+      return Array.isArray(plantillasCache) ? plantillasCache : null;
+    } catch (error) {
+      console.warn("[Quick Replies] No se pudo leer la caché de plantillas:", error);
+      return null;
+    }
+  }
+
+  function pedirPlantillasAlBackground() {
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.runtime.sendMessage({ tipo: "cargarPlantillas", url: SHEET_URL }, respuesta => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+
+          if (respuesta?.ok) {
+            resolve(respuesta.data);
+          } else {
+            const error = new Error(respuesta?.error || "Sin respuesta");
+            if (respuesta?.timeout) error.name = "AbortError";
+            reject(error);
+          }
+        });
+      } catch (error) {
+        // p.ej. "Extension context invalidated" tras recargar la extensión
+        reject(error);
+      }
+    });
+  }
+
   async function cargarPlantillas() {
     reloadTemplatesButton.disabled = true;
     reloadTemplatesButton.classList.add("loading");
-    renderizarEstadoPlantillas("Cargando plantillas...");
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 20000);
+    // 1) Mostrar al instante lo último guardado, si existe
+    const cache = await leerPlantillasCache();
+    if (cache) {
+      procesarPlantillas(cache);
+    } else {
+      renderizarEstadoPlantillas("Cargando plantillas...");
+    }
 
+    // 2) Actualizar desde Google Sheets en segundo plano
     try {
-      const url = `${SHEET_URL}${SHEET_URL.includes("?") ? "&" : "?"}_=${Date.now()}`;
-      const response = await fetch(url, { cache: "no-store", signal: controller.signal });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        throw new Error("La respuesta del Sheet no es una lista de plantillas");
-      }
-
+      const data = await pedirPlantillasAlBackground();
       procesarPlantillas(data);
     } catch (error) {
       console.error("ERROR SHEET:", error);
-      const mensaje = error.name === "AbortError"
-        ? "El servidor de plantillas no respondió. Pulsa ↻ para reintentar."
-        : "No se pudieron cargar las plantillas. Pulsa ↻ para reintentar.";
-      renderizarEstadoPlantillas(mensaje, "error");
+
+      if (!cache) {
+        const mensaje = error.name === "AbortError"
+          ? "El servidor de plantillas no respondió. Pulsa ↻ para reintentar."
+          : "No se pudieron cargar las plantillas. Pulsa ↻ para reintentar.";
+        renderizarEstadoPlantillas(mensaje, "error");
+      }
     } finally {
-      clearTimeout(timeoutId);
       reloadTemplatesButton.disabled = false;
       reloadTemplatesButton.classList.remove("loading");
     }
